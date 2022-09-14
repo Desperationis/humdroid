@@ -8,53 +8,40 @@
 #include <opencv2/objdetect/objdetect.hpp>
 #include <iostream>
 #include <chrono>
+
+#include "opencv_wrapper/TemplateMatchCPU.hpp"
+
 using namespace cv;
 using namespace std;
 
 
-Mat TplMatch(Mat &img, Mat& myTemplate) {
-	Mat result;
-	/// Create the result matrix
-	  int result_cols =  img.cols - myTemplate.cols + 1;
-	  int result_rows = img.rows - myTemplate.rows + 1;
-
-	  result.create( result_cols, result_rows, CV_32FC1 );
-
-	matchTemplate(img, myTemplate, result, TM_CCOEFF_NORMED);
-	//normalize(result, result, 0, 1, NORM_MINMAX, -1, Mat());
-	
-	return result;
-}
-
 
 int main( int argc, char** argv )
 {
+	std::cout<<"Version: " << CV_VERSION << std::endl;
+
+	TemplateMatchCPU t;
+
+	t.addTemplate(23, argv[1]);
+	t.addTemplate(0, argv[1]);
+	t.addTemplate(5, argv[1]);
+	t.setBackground(argv[2]);
+
+	std::vector<Match> matches = t.match(); // Dummy call for CUDA init
+
+	// float minSimilarityValue = std::stof(argv[3]);
+
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	Mat myTemplate = imread(argv[1], IMREAD_GRAYSCALE);
-	Mat myImage = imread(argv[2], IMREAD_GRAYSCALE);
+	matches = t.match();
 
-
-	Mat match = TplMatch(myImage, myTemplate);
-
-
-	double minVal, maxVal;
-	Point minLoc, maxLoc, matchLoc;
-	minMaxLoc(match, &minVal, &maxVal, &minLoc, &maxLoc, Mat());
-	matchLoc = maxLoc;
-
-	float minSimilarityValue = std::stof(argv[3]);
-
-	if(maxVal < minSimilarityValue) {
-		return 1;
+	for(int i = 0; i < matches.size(); i++) {
+		Match match = matches[i];
+		std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
 	}
 
-	Point center = Point(matchLoc.x + myTemplate.cols / 2, matchLoc.y + myTemplate.rows / 2);
-
-	std::cout << center.x << " " << center.y << std::endl;
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-	std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end -         begin).count() << std::endl;
 
-
+	std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 
 	return 0;
 }
