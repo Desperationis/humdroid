@@ -1,2 +1,5 @@
 *.raw
 *.swp
+build/
+executable/
+compile_commands.json
