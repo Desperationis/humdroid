@@ -1,5 +1,7 @@
 *.raw
 *.swp
+background.jpg
+key.jpg
 build/
 executable/
 compile_commands.json
