@@ -23,7 +23,9 @@ int main( int argc, char** argv )
 
 	TemplateMatchGPU t;
 
+	t.addTemplate(23, argv[1]);
 	t.addTemplate(0, argv[1]);
+	t.addTemplate(5, argv[1]);
 	t.setBackground(argv[2]);
 
 	std::vector<Match> matches = t.match(); // Dummy call for CUDA init
@@ -35,7 +37,7 @@ int main( int argc, char** argv )
 
 	for(int i = 0; i < matches.size(); i++) {
 		Match match = matches[i];
-		std::cout << match.getX() << " " << match.getY() << std::endl;
+		std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

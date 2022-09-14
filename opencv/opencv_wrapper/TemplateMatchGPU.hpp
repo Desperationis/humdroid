@@ -15,6 +15,7 @@
 #include <string>
 
 #include "TemplateMatch.hpp"
+#include "TemplateGPU.hpp"
 
 using namespace cv;
 using namespace cv::cuda;
@@ -25,7 +26,7 @@ using namespace cv::cuda;
 class TemplateMatchGPU : public TemplateMatch {
 
 private:
-	std::vector<cuda::GpuMat> templates;
+	std::vector<TemplateGPU*> templates;
 	cuda::GpuMat* background;
 	//cuda::TemplateMatching templMatch;
 
@@ -41,13 +42,7 @@ public:
 	}
 
 	void addTemplate(int id, std::string file) override {
-		// TODO use ID
-		Mat temp = imread(file, IMREAD_GRAYSCALE);
-
-		cv::cuda::GpuMat templateGPU;
-		templateGPU.upload(temp);
-
-		templates.push_back(templateGPU);
+		templates.push_back(new TemplateGPU(id, file));
 	}
 
 	void setBackground(std::string file) override {
@@ -62,7 +57,7 @@ public:
 
 	std::vector<Match> match() override {
 		std::vector<Match> matches;
-		for(cuda::GpuMat mat : templates) {
+		for(TemplateGPU* mat : templates) {
 			matches.push_back(match(mat));
 		}
 
@@ -70,25 +65,27 @@ public:
 	}
 
 private:
-	Match match(cuda::GpuMat& template_) {
+	Match match(TemplateGPU* template_) {
+		cuda::GpuMat* mat = template_->getMat();
+
 		cuda::GpuMat result;
-		int result_cols =  background->cols - template_.cols + 1;
-		int result_rows = background->rows - template_.rows + 1;
+		int result_cols =  background->cols - mat->cols + 1;
+		int result_rows = background->rows - mat->rows + 1;
 
 		// CV_32F is also an option; Only 2 methods are implemented however
 		result.create( result_cols, result_rows, CV_8U );
 
-		Ptr<cuda::TemplateMatching> t = cuda::createTemplateMatching(template_.type(), TM_CCOEFF_NORMED);
+		Ptr<cuda::TemplateMatching> t = cuda::createTemplateMatching(mat->type(), TM_CCOEFF_NORMED);
 
-		t->match(*background, template_, result);
+		t->match(*background, *mat, result);
 
 		double minVal, maxVal;
 		Point minLoc, maxLoc;
 		cv::cuda::minMaxLoc(result, &minVal, &maxVal, &minLoc, &maxLoc);
 
-		Point center(maxLoc.x + template_.cols / 2, maxLoc.y + template_.rows / 2);
+		Point center(maxLoc.x + mat->cols / 2, maxLoc.y + mat->rows / 2);
 
-		return Match(0, center.x, center.y, Match::ORIGIN::CENTER, maxVal);
+		return Match(template_->getID(), center.x, center.y, Match::ORIGIN::CENTER, maxVal);
 	}
 };
 
