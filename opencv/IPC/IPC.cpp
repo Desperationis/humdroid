@@ -60,13 +60,17 @@ public:
 		return std::string(buffer);
 	}
 
-	int send(char* buf, size_t buflen) {
+	/**
+	 * Sends `buflen` amount of bytes from `buf` to socket.
+	*/ 
+	int send(const char* buf, size_t buflen) {
 		if(buflen > MAXLINE) 
 			return -1;
 
 		socklen_t len;
+		len = sizeof(cliaddr);
 		
-		return sendto(sockfd, (const char *)buf, buflen,  
+		return sendto(sockfd, buf, buflen,  
 			MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
 				len); 
 	}
@@ -80,7 +84,10 @@ int main() {
 
 	std::cout<<"Message: " << msg << std::endl;
 
+	const char* buf = "Hello";
+	int code = socket.send(buf, strlen(buf));
 
+	std::cout<<"Code: " << code << std::endl;
         
         
     return 0; 
