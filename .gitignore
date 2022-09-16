@@ -1,5 +1,6 @@
 *.raw
 *.swp
+*.out
 background.jpg
 key.jpg
 build/
