@@ -21,6 +21,7 @@ This approach allows for multiple things:
 * `sudo apt install libopencv-dev`
   * CUDA and OpenCV are optional
 * `sudo apt install adb`
+* `sudo apt install ffmmpeg`
 * `pip3 install scrcpy-client adbutils`
 * [C++ json](https://github.com/nlohmann/json)
 
