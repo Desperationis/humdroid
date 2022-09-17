@@ -17,11 +17,3 @@ class IPCSocket:
     def send(self, data):
         self.sock.sendto(data, (self.UDP_IP, self.UDP_PORT))
 
-ipc = IPCSocket()
-ipc.send(b"Hello, world!")
-
-while True:
-    print(ipc.receive())
-
-
-
