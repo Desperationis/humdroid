@@ -1,4 +1,3 @@
-// Server side implementation of UDP client-server model 
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h> 
@@ -15,7 +14,6 @@ private:
     int sockfd; 
     char* buffer; 
     struct sockaddr_in servaddr, cliaddr; 
-    // const char *hello = "Hello from server"; 
 	
 	const int PORT = 5005;
 	const int MAXLINE = 1024;

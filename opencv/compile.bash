@@ -25,5 +25,6 @@ then
 	mv compile_commands.json ../
 	mv GPU ../executable
 	mv CPUU ../executable
+	mv IPC ../executable
 	echo "Compilation done."
 fi
