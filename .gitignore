@@ -6,3 +6,4 @@ key.jpg
 build/
 executable/
 compile_commands.json
+.cache/
