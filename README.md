@@ -2,12 +2,25 @@
 Programmatically control Android like a Human. 
 
 Uses a three-step process:
-* **adb** for "seeing" the screen.
+* **adb + ffmpeg** for "seeing" the screen. ffmpeg is used to offload .png conversion to the computer's multiple cores instead of relying on a random android phone.
 * **OpenCV (CUDA + OpenGL optional)** to find specific items based on template matching.
-* **monkeyrunner** to very quickly respond and click based on those items. 
+* **[py-scrcpy-client](https://github.com/leng-yue/py-scrcpy-client)** to very quickly respond and click based on those items. 
+
+## Program Structure
+To maximize speed, some considerable design is required. This is due to OpenCV's CUDA implementation requiring a whole 2 seconds to initialize, and py-scrcpy-client requiring half a second to initialize. In a single-use application, this is not an issue, the delay is considerable enough to avoid calling the script multiple times for every screenshot. 
+
+Therefore, the code in `opencv` and `scrcpy` run in separate processes and can be accessed via a UDP or TCP socket interface in localhost (exact implementation TBD) to avoid initialization. Communication is done via JSON.
+
+This approach allows for multiple things:
+* Main script is able to call `scrcpy` directly without worrying about where scripts are located
+* `opencv` and screenshot can work together to avoid reading and writing to a screenshot at the same time if needed
+* Each process can run asynchrously
+* Modular: Each process could easily be repurposed for something else, and can have things replaced should they need to. 
+
+
+
 
 Important links:
-https://developer.android.com/studio/test/monkeyrunner
 
 https://stackoverflow.com/questions/32482250/how-to-send-touch-events-to-an-android-device-as-fast-as-possible-using-adb-shel
 
