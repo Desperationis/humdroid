@@ -17,14 +17,21 @@
 
 #adb shell wm size
 
-adb shell screencap > out.raw
+TMP_DIR=/tmp/humdroid
 
-if [[ -e capture.png ]] 
+if ! [[ -d $TMP_DIR ]]
 then
-	rm capture.png
+	mkdir $TMP_DIR
 fi
-ffmpeg -f rawvideo -pix_fmt bgr32 -s 1080x2400 -i out.raw -vframes 1 capture.png  
 
-rm out.raw
+adb shell screencap > $TMP_DIR/out.raw
 
-#eog capture.png
+if [[ -e $TMP_DIR/capture.png ]] 
+then
+	rm $TMP_DIR/capture.png
+fi
+
+# TODO: Dynamatically determine screen size
+ffmpeg -hide_banner -loglevel error -f rawvideo -pix_fmt bgr32 -s 1080x2400 -i $TMP_DIR/out.raw -vframes 1 $TMP_DIR/capture.png  
+
+#eog $TMP_DIR/capture.png
