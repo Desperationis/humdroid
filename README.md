@@ -17,7 +17,12 @@ This approach allows for multiple things:
 * Each process can run asynchrously
 * Modular: Each process could easily be repurposed for something else, and can have things replaced should they need to. 
 
-
+## Dependencies
+* `sudo apt install libopencv-dev`
+  * CUDA and OpenCV are optional
+* `sudo apt install adb`
+* `pip3 install scrcpy-client adbutils`
+* [C++ json](https://github.com/nlohmann/json)
 
 
 Important links:
