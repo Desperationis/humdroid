@@ -25,6 +25,11 @@ This approach allows for multiple things:
 * `pip3 install scrcpy-client adbutils`
 * [C++ json](https://github.com/nlohmann/json)
 
+## Compiling
+### opencv
+1. `git submodule update --init`
+2. `bash compile.bash`
+
 
 Important links:
 
