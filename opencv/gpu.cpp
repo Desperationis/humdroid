@@ -12,9 +12,12 @@
 #include <chrono>
 
 #include "opencv_wrapper/TemplateMatchGPU.hpp"
+#include "IPC/IPCSocket.h"
+#include "nlohmann/json.hpp"
 
 using namespace cv;
 using namespace std;
+using json = nlohmann::json;
 
 int main( int argc, char** argv )
 {
@@ -23,9 +26,36 @@ int main( int argc, char** argv )
 
 	TemplateMatchGPU t;
 
-	t.addTemplate(23, argv[1]);
-	t.addTemplate(0, argv[1]);
-	t.addTemplate(5, argv[1]);
+
+
+
+
+
+
+
+	std::cout << "Waiting for images..." << std::endl;
+
+	IPCSocket socket;
+	std::string msg = socket.receive();
+
+	std::cout<<"Message received: " << msg << std::endl;
+
+	auto j3 = json::parse(msg);
+	auto templates = j3["loadTemplates"]["templates"];
+
+	std::cout<<"Templates: " <<std::endl;
+	for(int i = 0; i < templates.size(); i ++) {
+		std::cout << templates[i] << std::endl;
+		t.addTemplate(i, templates[i]);
+	}
+
+
+
+
+
+
+
+
 	t.setBackground(argv[2]);
 
 	std::vector<Match> matches = t.match(); // Dummy call for CUDA init
