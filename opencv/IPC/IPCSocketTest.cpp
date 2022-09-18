@@ -10,7 +10,13 @@ int main() {
 
 	std::cout<<"Message: " << msg << std::endl;
 	auto j3 = json::parse(msg);
-	std::cout<<"Parameter: " << j3["loadFolder"]["folder"]<<std::endl;
+
+	auto templates = j3["loadTemplates"]["templates"];
+
+	std::cout<<"Templates: " <<std::endl;
+	for(int i = 0; i < templates.size(); i ++) {
+		std::cout << templates[i] << std::endl;
+	}
 
 	std::string dump = j3.dump();
 	int code = socket.send(dump.c_str(), dump.length());
