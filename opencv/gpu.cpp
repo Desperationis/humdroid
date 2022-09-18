@@ -21,20 +21,15 @@ using json = nlohmann::json;
 
 int main( int argc, char** argv )
 {
-	std::cout<<"Count: " << cv::cuda::getCudaEnabledDeviceCount() << std::endl;
-	std::cout<<"Version: " << CV_VERSION << std::endl;
+	std::cout<<"CUDA Device Count: " << cv::cuda::getCudaEnabledDeviceCount() << std::endl;
+	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
 	TemplateMatchGPU t;
 
 
 
 
-
-
-
-
 	std::cout << "Waiting for images..." << std::endl;
-
 	IPCSocket socket;
 	std::string msg = socket.receive();
 
@@ -51,28 +46,45 @@ int main( int argc, char** argv )
 
 
 
+	while(true) {
+		std::cout << "Waiting for compare request..." << std::endl;
+		std::string compareMsg = socket.receive();
+
+		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+		std::cout<<"Message received: " << compareMsg << std::endl;
+		auto compareJSON = json::parse(compareMsg);
+		std::string background = compareJSON["compareSingle"]["photo"];
+
+		t.setBackground(background);
+		std::vector<Match> matches = t.match();
+		json j;
+		j["matches"] = json::array();
+
+		for(int i = 0; i < matches.size(); i++) {
+			Match match = matches[i];
+			std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
+			j["matches"].push_back({"x", match.getX()});
+			j["matches"].push_back({"y", match.getY()});
+		}
+
+		std::cout<<"Sending out message..."<<std::endl;
+		std::string dump = j.dump();
+		socket.send(dump.c_str(), dump.length());
 
 
 
+		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+		std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
+
+	}
 
 
-	t.setBackground(argv[2]);
 
-	std::vector<Match> matches = t.match(); // Dummy call for CUDA init
 
 	// float minSimilarityValue = std::stof(argv[3]);
 
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-	matches = t.match();
-
-	for(int i = 0; i < matches.size(); i++) {
-		Match match = matches[i];
-		std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
-	}
-
-	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-	std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 
 	return 0;
 }
