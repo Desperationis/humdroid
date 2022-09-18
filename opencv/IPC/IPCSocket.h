@@ -45,6 +45,10 @@ public:
 		} 
 	}
 
+	~IPCSocket() {
+		shutdown(sockfd, SHUT_RDWR);
+	}
+
 	std::string receive() {
 		int n; 
 		socklen_t len;
