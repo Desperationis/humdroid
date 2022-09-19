@@ -9,8 +9,10 @@
 #include <iostream>
 #include <chrono>
 
-#include "opencv_wrapper/TemplateMatchCPU.hpp"
 #include "IPC/IPCSocket.h"
+#include "IPC/IPCThread.hpp"
+#include "IPC/IPCMsgQueue.hpp"
+#include "IPC/Messages.hpp"
 #include "nlohmann/json.hpp"
 
 using namespace cv;
@@ -18,11 +20,32 @@ using namespace std;
 using json = nlohmann::json;
 
 
-
 int main( int argc, char** argv )
 {
-	std::cout<<"Version: " << CV_VERSION << std::endl;
+	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
+
+
+
+	IPCThread ipcThread;
+	auto msgQueue = std::make_shared<IPCMsgQueue>();
+	ipcThread.Start();
+	ipcThread.AttachQueue(msgQueue);
+
+
+	while (true ) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+		Match match(0, 0, 0, Match::ORIGIN::CENTER, 0.69);
+		MatchesMsg msg;
+		msg.AddMatch(match);
+
+		msgQueue->outputQueue.Push(msg);
+	}
+
+
+
+
+	/*
 	TemplateMatchCPU t;
 
 
@@ -88,6 +111,6 @@ int main( int argc, char** argv )
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 	std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
-
+	*/
 	return 0;
 }

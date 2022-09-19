@@ -23,7 +23,7 @@ fi
 if make
 then
 	mv compile_commands.json ../
-	mv GPU ../executable
+	# mv GPU ../executable
 	mv CPUU ../executable
 	echo "Compilation done."
 fi
