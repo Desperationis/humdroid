@@ -5,9 +5,10 @@
 #include <iostream>
 #include <functional>
 #include <atomic>
-
+#include <memory>
 
 #include "IPC/IPCSocket.h"
+#include "IPC/IPCMsgQueue.hpp"
 #include "IPC/Messages.hpp"
 #include "util/MutexQueue.hpp"
 #include "nlohmann/json.hpp"
@@ -17,7 +18,7 @@ using json = nlohmann::json;
 class IPCThread {
 private:
 	IPCSocket* socket;
-	MutexQueue<IPCOutputMsg> outputQueue;
+	std::shared_ptr<IPCMsgQueue> queue = nullptr;
 	std::thread* thread;
 	std::atomic<bool> running;
 	std::atomic<bool> interruptFlag;
@@ -26,6 +27,16 @@ private:
 public:
 	IPCThread() {
 		thread = nullptr;
+		queue = nullptr;
+		socket = nullptr;
+	}
+
+	void AttachQueue(std::shared_ptr<IPCMsgQueue> queue) {
+		this->queue = queue;
+	}
+
+	std::shared_ptr<IPCMsgQueue> GetQueue() {
+		return queue;
 	}
 
 	bool IsRunning() {
@@ -43,12 +54,14 @@ public:
 
 	void Loop() {
 		while(true) {
-			std::cout << "Checking output queue..." << std::endl;
-			for(int i = 0; i < outputQueue.Size(); i++) {
-				IPCOutputMsg msg = outputQueue.Pop();
-				std::string msgStr = msg.ToJSON().dump();
-				std::cout<<msgStr<<std::endl;
-				socket->send(msgStr.c_str(), msgStr.length());
+			if(queue != nullptr) {
+				std::cout << "Checking output queue->.." << std::endl;
+				for(int i = 0; i < queue->outputQueue.Size(); i++) {
+					IPCOutputMsg msg = queue->outputQueue.Pop();
+					std::string msgStr = msg.ToJSON().dump();
+					std::cout<<msgStr<<std::endl;
+					socket->send(msgStr.c_str(), msgStr.length());
+				}
 			}
 
 			std::cout << "Waiting for a message..." << std::endl;
@@ -58,11 +71,14 @@ public:
 			if(LoadTemplatesMsg::IsMsg(jsonMsg)) {
 				std::cout << "LoadTemplates received." << std::endl;
 				LoadTemplatesMsg templatesMsg(jsonMsg);
+				if(queue != nullptr)
+					queue->templateQueue.Push(templatesMsg);
 
 				std::cout<<"Templates: " <<std::endl;
 				auto templates = templatesMsg.GetTemplates();
 				for(int i = 0; i < templates.size(); i ++) {
 					std::cout << templates[i] << std::endl;
+
 					// t.addTemplate(i, templates[i]);
 				}
 			}
@@ -71,17 +87,15 @@ public:
 				std::cout << "CompareSingle received." << std::endl;
 
 				CompareSingleMsg compareSingleMsg(jsonMsg);
+				
+				if(queue != nullptr)
+					queue->compareQueue.Push(compareSingleMsg);
 
 				std::string background = compareSingleMsg.GetPhoto();
 			}
 
 
 		}
-	}
-
-
-	void PushOutput(IPCOutputMsg msg) {
-		outputQueue.Push(msg);	
 	}
 };
 

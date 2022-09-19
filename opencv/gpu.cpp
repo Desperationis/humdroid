@@ -14,6 +14,7 @@
 #include "opencv_wrapper/TemplateMatchGPU.hpp"
 #include "IPC/IPCSocket.h"
 #include "IPC/IPCThread.hpp"
+#include "IPC/IPCMsgQueue.hpp"
 #include "IPC/Messages.hpp"
 #include "nlohmann/json.hpp"
 
@@ -27,7 +28,9 @@ int main( int argc, char** argv )
 	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
 	IPCThread ipcThread;
+	auto msgQueue = std::make_shared<IPCMsgQueue>();
 	ipcThread.Start();
+	ipcThread.AttachQueue(msgQueue);
 
 	TemplateMatchGPU t;
 
@@ -37,7 +40,8 @@ int main( int argc, char** argv )
 		Match match(0, 0, 0, Match::ORIGIN::CENTER, 0.69);
 		MatchesMsg msg;
 		msg.AddMatch(match);
-		ipcThread.PushOutput(msg);
+
+		msgQueue->outputQueue.Push(msg);
 	}
 
 
