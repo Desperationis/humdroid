@@ -1,11 +1,14 @@
 #ifndef IPCTHREAD_HPP
 #define IPCTHREAD_HPP
 
+#include <chrono>
 #include <thread>
 #include <iostream>
 #include <functional>
 #include <atomic>
 #include <memory>
+#include <cerrno>
+#include <sstream>
 
 #include "IPC/IPCSocket.h"
 #include "IPC/IPCMsgQueue.hpp"
@@ -17,18 +20,22 @@ using json = nlohmann::json;
 
 class IPCThread {
 private:
-	IPCSocket* socket;
+	IPCSocket* outSocket;
+	std::thread* outThread;
+
+	IPCSocket* inSocket;
+	std::thread* inThread;
+
 	std::shared_ptr<IPCMsgQueue> queue = nullptr;
-	std::thread* thread;
 	std::atomic<bool> running;
 	std::atomic<bool> interruptFlag;
 
 
 public:
 	IPCThread() {
-		thread = nullptr;
+		outThread = inThread = nullptr;
+		outSocket = inSocket = nullptr;
 		queue = nullptr;
-		socket = nullptr;
 	}
 
 	void AttachQueue(std::shared_ptr<IPCMsgQueue> queue) {
@@ -40,19 +47,24 @@ public:
 	}
 
 	bool IsRunning() {
-		if (thread == nullptr)
+		if (inThread == nullptr || outThread == nullptr)
 			return false;
 
 		return running.load();
 	}
 
 	void Start() {
-		socket = new IPCSocket();
-		thread = new std::thread(std::bind(&IPCThread::Loop, this));
+		inSocket = new IPCSocket(6069);
+		outSocket = new IPCSocket(6070);
+
+
+		inThread = new std::thread(std::bind(&IPCThread::InputLoop, this));
+		outThread = new std::thread(std::bind(&IPCThread::OutputLoop, this));
 	}
 
-
-	void Loop() {
+	void OutputLoop() {
+		outSocket->listenForClient();
+		auto duration = std::chrono::milliseconds(500);
 		while(true) {
 			if(queue != nullptr) {
 				std::cout << "Checking output queue->.." << std::endl;
@@ -60,42 +72,60 @@ public:
 					IPCOutputMsg msg = queue->outputQueue.Pop();
 					std::string msgStr = msg.ToJSON().dump();
 					std::cout<<msgStr<<std::endl;
-					socket->send(msgStr.c_str(), msgStr.length());
+					std::cout<<msgStr.length()<<std::endl;
+					int n = outSocket->Send(msgStr.c_str(), msgStr.length());
+					std::cout<< std::strerror(errno) << std::endl;
+					std::cout<<"Send out: " << n << std::endl;
 				}
 			}
 
-			std::cout << "Waiting for a message..." << std::endl;
-			std::string msg = socket->receive();
-
-			auto jsonMsg = json::parse(msg);
-			if(LoadTemplatesMsg::IsMsg(jsonMsg)) {
-				std::cout << "LoadTemplates received." << std::endl;
-				LoadTemplatesMsg templatesMsg(jsonMsg);
-				if(queue != nullptr)
-					queue->templateQueue.Push(templatesMsg);
-
-				std::cout<<"Templates: " <<std::endl;
-				auto templates = templatesMsg.GetTemplates();
-				for(int i = 0; i < templates.size(); i ++) {
-					std::cout << templates[i] << std::endl;
-
-					// t.addTemplate(i, templates[i]);
-				}
-			}
-
-			else if (CompareSingleMsg::IsMsg(jsonMsg)) {
-				std::cout << "CompareSingle received." << std::endl;
-
-				CompareSingleMsg compareSingleMsg(jsonMsg);
-				
-				if(queue != nullptr)
-					queue->compareQueue.Push(compareSingleMsg);
-
-				std::string background = compareSingleMsg.GetPhoto();
-			}
-
-
+			std::this_thread::sleep_for(duration);
 		}
+
+	}
+
+
+	void InputLoop() {
+		inSocket->listenForClient();
+		std::cout << "Input socket connected." << std::endl;
+		while(true) {
+			std::cout << "Waiting for an input message..." << std::endl;
+			std::string msg = inSocket->receive();
+			std::cout<<"Input message received: " << msg<<std::endl;
+			std::stringstream msgStream(msg);
+			std::string parsed;
+
+			while(std::getline(msgStream, parsed, '$')) {
+				auto jsonMsg = json::parse(parsed);
+				if(LoadTemplatesMsg::IsMsg(jsonMsg)) {
+					std::cout << "LoadTemplates received." << std::endl;
+					LoadTemplatesMsg templatesMsg(jsonMsg);
+					if(queue != nullptr)
+						queue->templateQueue.Push(templatesMsg);
+
+					std::cout<<"Templates: " <<std::endl;
+					auto templates = templatesMsg.GetTemplates();
+					for(int i = 0; i < templates.size(); i ++) {
+						std::cout << templates[i] << std::endl;
+
+						// t.addTemplate(i, templates[i]);
+					}
+				}
+
+				else if (CompareSingleMsg::IsMsg(jsonMsg)) {
+					std::cout << "CompareSingle received." << std::endl;
+
+					CompareSingleMsg compareSingleMsg(jsonMsg);
+					
+					if(queue != nullptr)
+						queue->compareQueue.Push(compareSingleMsg);
+
+					std::string background = compareSingleMsg.GetPhoto();
+				}
+			}
+		}
+
+		std::cout << "Input thread terminated." << std::endl;
 	}
 };
 

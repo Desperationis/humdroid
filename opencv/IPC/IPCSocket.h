@@ -15,9 +15,9 @@
     
 class IPCSocket {
 private:
-    int sockfd; 
+    int sockfd, clientfd; 
     char* buffer; 
-    struct sockaddr_in servaddr, cliaddr; 
+    struct sockaddr_in servaddr; 
 	
 	int port;
 	std::string address;
@@ -32,14 +32,13 @@ public:
 		buffer = new char[MAXLINE];
 
 		// Create UDP socket
-		sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		if(sockfd < 0) {
 			perror("Socket creation failed!");
 			exit(EXIT_FAILURE);
 		}
 
 		memset(&servaddr, 0, sizeof(servaddr)); 
-		memset(&cliaddr, 0, sizeof(cliaddr)); 
 
 		servaddr.sin_family = AF_INET; 
 		servaddr.sin_port = htons(port); 
@@ -53,19 +52,23 @@ public:
 		} 
 	}
 
+	void listenForClient() {
+		listen(sockfd, 3);
+		socklen_t len = sizeof(servaddr);
+
+		std::cout << "Listening for client.." << std::endl;
+		clientfd = accept(sockfd, (struct sockaddr *)&servaddr, &len);
+		std::cout << "Client " << clientfd << std::endl;
+	}
+
 	~IPCSocket() {
 		shutdown(sockfd, SHUT_RDWR);
 	}
 
 	std::string receive() {
 		int n; 
-		socklen_t len;
 		
-		len = sizeof(cliaddr);
-		
-		n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
-					MSG_WAITALL, ( struct sockaddr *) &cliaddr, 
-					&len); 
+		n = recv(clientfd, (char *)buffer, MAXLINE, 0); 
 		buffer[n] = '\0'; 
 
 		return std::string(buffer);
@@ -74,16 +77,11 @@ public:
 	/**
 	 * Sends `buflen` amount of bytes from `buf` to socket.
 	*/ 
-	int send(const char* buf, size_t buflen) {
+	int Send(const char* buf, size_t buflen) {
 		if(buflen > MAXLINE) 
 			return -1;
 
-		socklen_t len;
-		len = sizeof(cliaddr);
-		
-		return sendto(sockfd, buf, buflen,  
-			MSG_CONFIRM, (const struct sockaddr *) &cliaddr, 
-				len); 
+		return send(clientfd, buf, buflen, 0); 
 	}
 };
 

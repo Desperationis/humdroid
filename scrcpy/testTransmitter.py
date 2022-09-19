@@ -25,10 +25,9 @@ for (dirpath, dirnames, filenames) in walk(TEMPLATE_DIR):
 jsonData = json.dumps(data).encode("UTF-8")
 
 
-sock = IPCSocket()
-
-sock.send(bytearray(jsonData))
-
+outputSock = IPCSocket(6070)
+inputSock = IPCSocket(6069)
+inputSock.send(bytearray(jsonData) + b"$")
 
 for i in range(100):
     compareData = {
@@ -38,9 +37,9 @@ for i in range(100):
         }
     }
     compareJSON = json.dumps(compareData).encode("UTF-8")
-    sock.send(bytearray(compareJSON))
+    inputSock.send(bytearray(compareJSON) + b"$")
 
-    print("Received: %s" % sock.receive())
+    print("Received: %s" % outputSock.receive())
 
 
 
