@@ -7,7 +7,6 @@
 #include <functional>
 #include <atomic>
 #include <memory>
-#include <cerrno>
 #include <sstream>
 
 #include "IPC/IPCSocket.h"
@@ -63,7 +62,7 @@ public:
 	}
 
 	void OutputLoop() {
-		outSocket->listenForClient();
+		outSocket->ListenForClient();
 		auto duration = std::chrono::milliseconds(500);
 		while(true) {
 			if(queue != nullptr) {
@@ -74,7 +73,6 @@ public:
 					std::cout<<msgStr<<std::endl;
 					std::cout<<msgStr.length()<<std::endl;
 					int n = outSocket->Send(msgStr.c_str(), msgStr.length());
-					std::cout<< std::strerror(errno) << std::endl;
 					std::cout<<"Send out: " << n << std::endl;
 				}
 			}
@@ -86,11 +84,11 @@ public:
 
 
 	void InputLoop() {
-		inSocket->listenForClient();
+		inSocket->ListenForClient();
 		std::cout << "Input socket connected." << std::endl;
 		while(true) {
 			std::cout << "Waiting for an input message..." << std::endl;
-			std::string msg = inSocket->receive();
+			std::string msg = inSocket->Receive();
 			std::cout<<"Input message received: " << msg<<std::endl;
 			std::stringstream msgStream(msg);
 			std::string parsed;

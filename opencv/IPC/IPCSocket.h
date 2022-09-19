@@ -11,6 +11,8 @@
 #include <netinet/in.h> 
 #include <string>
 #include <iostream>
+#include <cerrno>
+#include <cstring>
 
     
 class IPCSocket {
@@ -22,14 +24,14 @@ private:
 	int port;
 	std::string address;
 
-	const int MAXLINE = 1024;
+	const int MAXBYTES = 1024;
 	
 public:
 	IPCSocket(int port = 5005, std::string address = "127.0.0.1") {
 		this->port = port;
 		this->address = address;
 
-		buffer = new char[MAXLINE];
+		buffer = new char[MAXBYTES];
 
 		// Create UDP socket
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,9 +52,15 @@ public:
 			perror("Bind failed!"); 
 			exit(EXIT_FAILURE); 
 		} 
+
 	}
 
-	void listenForClient() {
+
+	/**
+	 * Stalls until a new client is connected to this socket. MUST be called
+	 * before sending or receiving.
+	*/ 
+	void ListenForClient() {
 		listen(sockfd, 3);
 		socklen_t len = sizeof(servaddr);
 
@@ -65,23 +73,39 @@ public:
 		shutdown(sockfd, SHUT_RDWR);
 	}
 
-	std::string receive() {
+
+	/**
+	 * Receives a string up to MAXBYTES long from the socket.
+	*/ 
+	std::string Receive() {
 		int n; 
 		
-		n = recv(clientfd, (char *)buffer, MAXLINE, 0); 
+		n = recv(clientfd, (char *)buffer, MAXBYTES, 0); 
 		buffer[n] = '\0'; 
 
 		return std::string(buffer);
 	}
 
+
 	/**
 	 * Sends `buflen` amount of bytes from `buf` to socket.
+	 *
+	 * @returns The amount of bytes sent. -1 is returned if unable to send for
+	 * whatever reason.
 	*/ 
 	int Send(const char* buf, size_t buflen) {
-		if(buflen > MAXLINE) 
+		if(buflen > MAXBYTES) 
 			return -1;
 
 		return send(clientfd, buf, buflen, 0); 
+	}
+
+
+	/**
+	 * If a call fails (i.e. Send) return the error that occured.
+	*/ 
+	std::string GetError() {
+		return std::strerror(errno);
 	}
 };
 
