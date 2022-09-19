@@ -15,7 +15,8 @@
 #include "IPC/IPCSocket.h"
 #include "IPC/IPCThread.hpp"
 #include "IPC/IPCMsgQueue.hpp"
-#include "IPC/Messages.hpp"
+#include "IPC/IPCOutputMsg.hpp"
+#include "IPC/IPCInputMsg.hpp"
 #include "nlohmann/json.hpp"
 
 using namespace cv;

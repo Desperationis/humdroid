@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include "util/MutexQueue.hpp"
-#include "IPC/Messages.hpp"
+#include "IPC/IPCInputMsg.hpp"
+#include "IPC/IPCOutputMsg.hpp"
 
 struct IPCMsgQueue {
 	MutexQueue<IPCOutputMsg> outputQueue;

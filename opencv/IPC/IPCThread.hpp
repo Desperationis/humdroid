@@ -11,7 +11,8 @@
 
 #include "IPC/IPCSocket.h"
 #include "IPC/IPCMsgQueue.hpp"
-#include "IPC/Messages.hpp"
+#include "IPC/IPCInputMsg.hpp"
+#include "IPC/IPCOutputMsg.hpp"
 #include "util/MutexQueue.hpp"
 #include "nlohmann/json.hpp"
 
@@ -69,7 +70,7 @@ public:
 				std::cout << "Checking output queue->.." << std::endl;
 				for(int i = 0; i < queue->outputQueue.Size(); i++) {
 					IPCOutputMsg msg = queue->outputQueue.Pop();
-					std::string msgStr = msg.ToJSON().dump();
+					std::string msgStr = msg.Serialize();
 					std::cout<<msgStr<<std::endl;
 					std::cout<<msgStr.length()<<std::endl;
 					int n = outSocket->Send(msgStr.c_str(), msgStr.length());
