@@ -86,11 +86,9 @@ public:
 
 	void InputLoop() {
 		inSocket->ListenForClient();
-		std::cout << "Input socket connected." << std::endl;
 		while(true) {
-			std::cout << "Waiting for an input message..." << std::endl;
 			std::string msg = inSocket->Receive();
-			std::cout<<"Input message received: " << msg<<std::endl;
+			std::cout<<"Input message received: " << msg <<std::endl;
 			std::stringstream msgStream(msg);
 			std::string parsed;
 
@@ -106,8 +104,6 @@ public:
 					auto templates = templatesMsg.GetTemplates();
 					for(int i = 0; i < templates.size(); i ++) {
 						std::cout << templates[i] << std::endl;
-
-						// t.addTemplate(i, templates[i]);
 					}
 				}
 
@@ -123,8 +119,6 @@ public:
 				}
 			}
 		}
-
-		std::cout << "Input thread terminated." << std::endl;
 	}
 };
 

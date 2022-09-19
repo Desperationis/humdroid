@@ -59,14 +59,16 @@ public:
 	/**
 	 * Stalls until a new client is connected to this socket. MUST be called
 	 * before sending or receiving.
+	 *
+	 * @returns Socket file descriptor of client, -1 if failure.
 	*/ 
-	void ListenForClient() {
+	int ListenForClient() {
 		listen(sockfd, 3);
 		socklen_t len = sizeof(servaddr);
 
-		std::cout << "Listening for client.." << std::endl;
 		clientfd = accept(sockfd, (struct sockaddr *)&servaddr, &len);
-		std::cout << "Client " << clientfd << std::endl;
+
+		return clientfd;
 	}
 
 	~IPCSocket() {
