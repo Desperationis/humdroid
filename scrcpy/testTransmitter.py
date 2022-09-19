@@ -10,7 +10,7 @@ data = {
     }
 }
 
-TEMPLATE_DIR = "/home/adhoc/Desktop/humdroid/opencv/executable"
+TEMPLATE_DIR = "/home/adhoc/Downloads/pack1"
 for (dirpath, dirnames, filenames) in walk(TEMPLATE_DIR):
     images = []
     for file in filenames:

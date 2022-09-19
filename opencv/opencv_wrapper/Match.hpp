@@ -1,3 +1,6 @@
+#ifndef MATCH_HPP
+#define MATCH_HPP
+
 #include <string>
 
 /**
@@ -42,3 +45,5 @@ public:
 		return confidence;
 	}
 };
+
+#endif

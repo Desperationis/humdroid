@@ -13,6 +13,7 @@
 
 #include "opencv_wrapper/TemplateMatchGPU.hpp"
 #include "IPC/IPCSocket.h"
+#include "IPC/Messages.hpp"
 #include "nlohmann/json.hpp"
 
 using namespace cv;
@@ -36,9 +37,11 @@ int main( int argc, char** argv )
 	std::cout<<"Message received: " << msg << std::endl;
 
 	auto j3 = json::parse(msg);
-	auto templates = j3["loadTemplates"]["templates"];
+	std::cout<<LoadTemplatesMsg::IsMsg(j3)<<std::endl;
+	LoadTemplatesMsg loadMsg(j3);
 
 	std::cout<<"Templates: " <<std::endl;
+	auto templates = loadMsg.GetTemplates();
 	for(int i = 0; i < templates.size(); i ++) {
 		std::cout << templates[i] << std::endl;
 		t.addTemplate(i, templates[i]);
@@ -54,22 +57,22 @@ int main( int argc, char** argv )
 
 		std::cout<<"Message received: " << compareMsg << std::endl;
 		auto compareJSON = json::parse(compareMsg);
-		std::string background = compareJSON["compareSingle"]["photo"];
+		CompareSingleMsg msg(compareJSON);
+		std::string background = msg.GetPhoto();
 
 		t.setBackground(background);
 		std::vector<Match> matches = t.match();
-		json j;
-		j["matches"] = json::array();
+
+		MatchesMsg matchesMsg;
 
 		for(int i = 0; i < matches.size(); i++) {
 			Match match = matches[i];
 			std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
-			j["matches"].push_back({"x", match.getX()});
-			j["matches"].push_back({"y", match.getY()});
+			matchesMsg.AddMatch(match);
 		}
 
 		std::cout<<"Sending out message..."<<std::endl;
-		std::string dump = j.dump();
+		std::string dump = matchesMsg.GetJSON().dump();
 		socket.send(dump.c_str(), dump.length());
 
 
