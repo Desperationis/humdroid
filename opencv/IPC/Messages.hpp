@@ -44,6 +44,10 @@ struct CompareSingleMsg : public IPCMessage {
 	int GetID() {
 		return in["compareSingle"]["id"];
 	}
+
+	double GetMinConfidence() {
+		return in["compareSingle"]["minConfidence"];
+	}
 };
 
 struct MatchesMsg {

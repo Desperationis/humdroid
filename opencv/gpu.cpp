@@ -68,7 +68,10 @@ int main( int argc, char** argv )
 		for(int i = 0; i < matches.size(); i++) {
 			Match match = matches[i];
 			std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
-			matchesMsg.AddMatch(match);
+
+			if(match.getConfidence() >= msg.GetMinConfidence()) {
+				matchesMsg.AddMatch(match);
+			}
 		}
 
 		std::cout<<"Sending out message..."<<std::endl;
