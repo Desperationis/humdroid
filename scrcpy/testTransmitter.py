@@ -6,7 +6,7 @@ import time
 
 data = {
     "loadTemplates" : {
-        "templates" : [] 
+        "templates" : []
     }
 }
 
@@ -33,7 +33,8 @@ sock.send(bytearray(jsonData))
 for i in range(100):
     compareData = {
         "compareSingle" : {
-            "photo" : "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg"
+            "photo" : "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg",
+            "minConfidence" : 0.95
         }
     }
     compareJSON = json.dumps(compareData).encode("UTF-8")
