@@ -9,6 +9,7 @@
 #include <iostream>
 #include <chrono>
 
+#include "opencv_wrapper/TemplateMatchCPU.hpp"
 #include "IPC/IPCSocket.h"
 #include "IPC/IPCThread.hpp"
 #include "IPC/IPCMsgQueue.hpp"
@@ -24,29 +25,48 @@ int main( int argc, char** argv )
 {
 	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
-
-
-
 	IPCThread ipcThread;
 	auto msgQueue = std::make_shared<IPCMsgQueue>();
 	ipcThread.Start();
 	ipcThread.AttachQueue(msgQueue);
 
+	TemplateMatchCPU t;
 
 	while (true ) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-		Match match(0, 0, 0, Match::ORIGIN::CENTER, 0.69);
-		MatchesMsg msg;
-		msg.AddMatch(match);
+		while(msgQueue->templateQueue.Size() > 0) {
+			std::vector<std::string> templates = msgQueue->templateQueue.Pop().GetTemplates();
+			for(int i = 0; i < templates.size(); i ++) {
+				t.addTemplate(i, templates[i]);
+			}
+		}
+		
+		while(msgQueue->compareQueue.Size() > 0) {
+			CompareSingleMsg msg = msgQueue->compareQueue.Pop();
+			t.setBackground(msg.GetPhoto());
 
-		msgQueue->outputQueue.Push(msg);
+			MatchesMsg matchMsg;
+
+			std::vector<Match> matches = t.match();
+			for(int i = 0; i < matches.size(); i++) {
+				Match match = matches[i];
+				std::cout << "ID: " << match.getID() << "\tCOORD: " << match.getX() << " " << match.getY() << std::endl;
+
+
+				matchMsg.AddMatch(match);
+
+			}
+
+			msgQueue->outputQueue.Push(matchMsg);
+		}
+
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 
 
 
 
 	/*
-	TemplateMatchCPU t;
 
 
 
@@ -55,48 +75,6 @@ int main( int argc, char** argv )
 
 
 
-
-
-	std::cout << "Waiting for images..." << std::endl;
-
-	IPCSocket socket;
-	std::string msg = socket.receive();
-
-	std::cout<<"Message received: " << msg << std::endl;
-
-	auto j3 = json::parse(msg);
-	auto templates = j3["loadTemplates"]["templates"];
-
-	std::cout<<"Templates: " <<std::endl;
-	for(int i = 0; i < templates.size(); i ++) {
-		std::cout << templates[i] << std::endl;
-		t.addTemplate(i, templates[i]);
-	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	t.setBackground(argv[2]);
-
-	std::vector<Match> matches = t.match(); // Dummy call for CUDA init
 
 	// float minSimilarityValue = std::stof(argv[3]);
 
