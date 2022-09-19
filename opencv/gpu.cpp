@@ -13,6 +13,7 @@
 
 #include "opencv_wrapper/TemplateMatchGPU.hpp"
 #include "IPC/IPCSocket.h"
+#include "IPC/IPCThread.hpp"
 #include "IPC/Messages.hpp"
 #include "nlohmann/json.hpp"
 
@@ -25,40 +26,29 @@ int main( int argc, char** argv )
 	std::cout<<"CUDA Device Count: " << cv::cuda::getCudaEnabledDeviceCount() << std::endl;
 	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
+	IPCThread ipcThread;
+	ipcThread.Start();
+
 	TemplateMatchGPU t;
 
 
-
-
-	std::cout << "Waiting for images..." << std::endl;
-	IPCSocket socket;
-	std::string msg = socket.receive();
-
-	std::cout<<"Message received: " << msg << std::endl;
-
-	auto j3 = json::parse(msg);
-	std::cout<<LoadTemplatesMsg::IsMsg(j3)<<std::endl;
-	LoadTemplatesMsg loadMsg(j3);
-
-	std::cout<<"Templates: " <<std::endl;
-	auto templates = loadMsg.GetTemplates();
-	for(int i = 0; i < templates.size(); i ++) {
-		std::cout << templates[i] << std::endl;
-		t.addTemplate(i, templates[i]);
+	while (true ) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+		Match match(0, 0, 0, Match::ORIGIN::CENTER, 0.69);
+		MatchesMsg msg;
+		msg.AddMatch(match);
+		ipcThread.PushOutput(msg);
 	}
 
 
 
+
+
+
+
+	/*
 	while(true) {
-		std::cout << "Waiting for compare request..." << std::endl;
-		std::string compareMsg = socket.receive();
-
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-		std::cout<<"Message received: " << compareMsg << std::endl;
-		auto compareJSON = json::parse(compareMsg);
-		CompareSingleMsg msg(compareJSON);
-		std::string background = msg.GetPhoto();
 
 		t.setBackground(background);
 		std::vector<Match> matches = t.match();
@@ -84,7 +74,11 @@ int main( int argc, char** argv )
 
 		std::cout<<"Duration (ms): " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << std::endl;
 
+		
+
 	}
+
+	*/
 
 
 

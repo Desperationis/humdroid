@@ -50,10 +50,20 @@ struct CompareSingleMsg : public IPCMessage {
 	}
 };
 
-struct MatchesMsg {
-private:
-	json out;
 
+
+struct IPCOutputMsg {
+protected:
+	json out;
+public:
+	virtual json ToJSON() {
+		return out;
+	};
+};
+
+
+
+struct MatchesMsg : public IPCOutputMsg {
 public:
 	MatchesMsg() {
 		out["matches"] = json::array();
@@ -71,10 +81,6 @@ public:
 			{ "confidence", match.getConfidence() },
 			{ "origin",  origin}
 		} );
-	}
-
-	json GetJSON() {
-		return out;
 	}
 };
 
