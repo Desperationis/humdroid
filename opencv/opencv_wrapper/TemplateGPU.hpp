@@ -1,3 +1,6 @@
+#ifndef TEMPLATEGPU_HPP
+#define TEMPLATEGPU_HPP
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -38,3 +41,5 @@ public:
 		return mat;
 	}
 };
+
+#endif

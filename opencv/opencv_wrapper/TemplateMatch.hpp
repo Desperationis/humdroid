@@ -1,3 +1,6 @@
+#ifndef TEMPLATEMATCH_HPP
+#define TEMPLATEMATCH_HPP
+
 #include "Match.hpp"
 #include <string>
 #include <vector>
@@ -34,3 +37,5 @@ public:
 };
 
 TemplateMatch::~TemplateMatch() {}
+
+#endif

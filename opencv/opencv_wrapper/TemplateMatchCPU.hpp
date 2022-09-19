@@ -1,3 +1,6 @@
+#ifndef TEMPLATEMATCHCPU_HPP
+#define TEMPLATEMATCHCPU_HPP
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
@@ -71,3 +74,5 @@ private:
 		return Match(template_->getID(), center.x, center.y, Match::ORIGIN::CENTER, maxVal);
 	}
 };
+
+#endif

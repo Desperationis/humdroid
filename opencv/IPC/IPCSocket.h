@@ -1,3 +1,6 @@
+#ifndef IPCSOCK_H
+#define IPCSOCK_H
+
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <unistd.h> 
@@ -79,4 +82,4 @@ public:
 	}
 };
 
-
+#endif

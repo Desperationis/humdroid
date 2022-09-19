@@ -1,3 +1,6 @@
+#ifndef MESSAGES_HPP
+#define MESSAGES_HPP
+
 #include "opencv_wrapper/Match.hpp"
 #include "nlohmann/json.hpp"
 #include <vector>
@@ -70,3 +73,5 @@ public:
 		return out;
 	}
 };
+
+#endif
