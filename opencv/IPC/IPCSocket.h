@@ -19,11 +19,16 @@ private:
     char* buffer; 
     struct sockaddr_in servaddr, cliaddr; 
 	
-	const int PORT = 5005;
+	int port;
+	std::string address;
+
 	const int MAXLINE = 1024;
 	
 public:
-	IPCSocket() {
+	IPCSocket(int port = 5005, std::string address = "127.0.0.1") {
+		this->port = port;
+		this->address = address;
+
 		buffer = new char[MAXLINE];
 
 		// Create UDP socket
@@ -37,8 +42,8 @@ public:
 		memset(&cliaddr, 0, sizeof(cliaddr)); 
 
 		servaddr.sin_family = AF_INET; 
-		servaddr.sin_port = htons(PORT); 
-		servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); 
+		servaddr.sin_port = htons(port); 
+		servaddr.sin_addr.s_addr = inet_addr(address.c_str()); 
 
 		// Bind to localhost
 		int bindCode = bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr));
