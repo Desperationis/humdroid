@@ -53,6 +53,30 @@ public:
 			exit(EXIT_FAILURE); 
 		} 
 
+		listen(sockfd, 3);
+	}
+
+	int Close() {
+		return close(clientfd);
+	}
+
+	bool Connected(bool burn = false) {
+		int oobcode = recv(clientfd, buffer, 1, MSG_DONTWAIT | MSG_PEEK | MSG_OOB);
+		if(oobcode > 0)
+			return false;
+
+		int code;
+		if(burn)
+			code = recv(clientfd, buffer, 1024, MSG_DONTWAIT);
+		else
+			code = recv(clientfd, buffer, 1, MSG_DONTWAIT | MSG_PEEK);
+
+		if(code == -1 && errno == EAGAIN) {
+			return true;
+		}
+
+
+		return code > 0;
 	}
 
 
@@ -63,7 +87,6 @@ public:
 	 * @returns Socket file descriptor of client, -1 if failure.
 	*/ 
 	int ListenForClient() {
-		listen(sockfd, 3);
 		socklen_t len = sizeof(servaddr);
 
 		clientfd = accept(sockfd, (struct sockaddr *)&servaddr, &len);
@@ -99,7 +122,10 @@ public:
 		if(buflen > MAXBYTES) 
 			return -1;
 
-		return send(clientfd, buf, buflen, 0); 
+		int n =send(clientfd, buf, buflen, 0); 
+		std::cout<<"SEND ERROR: " << std::strerror(errno) << std::endl;
+
+		return n;
 	}
 
 

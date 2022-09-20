@@ -1,4 +1,7 @@
-# humdroid
+# humdroid - Reconnect
+
+This is a branch of trying to allow OpenCV to reconnect to a client after it has been disconnected. So far, it's funky. The receiving thread is able to work just fine, but the output thread does not work at all. This is the best attempt out of 3 tries to implement this.
+
 Programmatically control Android like a Human. 
 
 Uses a three-step process:

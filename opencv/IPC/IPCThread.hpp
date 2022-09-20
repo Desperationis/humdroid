@@ -66,6 +66,11 @@ public:
 		outSocket->ListenForClient();
 		auto duration = std::chrono::milliseconds(500);
 		while(true) {
+			if(!outSocket->Connected(true)) {
+				outSocket->Close();
+				outSocket->ListenForClient();
+			}
+
 			if(queue != nullptr) {
 				std::cout << "Checking output queue->.." << std::endl;
 				for(int i = 0; i < queue->outputQueue.Size(); i++) {
@@ -87,6 +92,10 @@ public:
 	void InputLoop() {
 		inSocket->ListenForClient();
 		while(true) {
+			if(!inSocket->Connected()) {
+				inSocket->Close();
+				inSocket->ListenForClient();
+			}
 			std::string msg = inSocket->Receive();
 			std::cout<<"Input message received: " << msg <<std::endl;
 			std::stringstream msgStream(msg);

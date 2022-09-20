@@ -16,14 +16,56 @@
 #include "IPC/IPCOutputMsg.hpp"
 #include "IPC/IPCInputMsg.hpp"
 #include "nlohmann/json.hpp"
+#include <signal.h>
 
 using namespace cv;
 using namespace std;
 using json = nlohmann::json;
 
 
+void loop() {
+	IPCSocket socket(8000);
+	socket.ListenForClient();
+	while(true) {
+		if(socket.Connected())
+			std::cout << "Connected" << std::endl;
+		else {
+			std::cout << "Not connected" << std::endl;
+			socket.Close();
+			socket.ListenForClient();
+		}
+		socket.Receive();
+	}
+}
+
+void loop2() {
+	signal(SIGPIPE, SIG_IGN);
+	IPCSocket socket(8000);
+	socket.ListenForClient();
+	while(true) {
+		if(socket.Connected(true))
+			std::cout << "Connected" << std::endl;
+		else {
+			std::cout << "Not connected" << std::endl;
+			socket.Close();
+			socket.ListenForClient();
+		}
+		socket.Send("amongus", strlen("amongus"));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+}
+
 int main( int argc, char** argv )
 {
+	signal(SIGPIPE, SIG_IGN);
+	//std::thread thread(loop2);
+
+	//thread.join();
+
+
+
+
+
 	std::cout<<"OpenCV Version: " << CV_VERSION << std::endl;
 
 	auto msgQueue = std::make_shared<IPCMsgQueue>();
