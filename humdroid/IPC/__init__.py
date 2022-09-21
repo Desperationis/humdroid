@@ -1,2 +1,2 @@
-from humdroid.IPC.IPCSocket import IPCSocket
-from humdroid.IPC.CVRequester import CVRequester
+from .IPCSocket import IPCSocket
+from .CVRequester import CVRequester
