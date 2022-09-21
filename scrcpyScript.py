@@ -4,7 +4,8 @@ from adbutils import adb
 import subprocess
 import os
 from PIL import Image
-from IPC import CVRequester
+from humdroid.IPC import CVRequester
+from humdroid.wrappers import ScrcpyWrapper
 
 
 BACKGROUND = "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg"
@@ -19,23 +20,15 @@ print(requester.CompareGroup(BACKGROUND, 1))
 exit(0)
 
 # Connect to device
-adb.connect("127.0.0.1:5555")
-print(adb.device_list())
-client = scrcpy.Client(device=adb.device_list()[0].serial)
-client.start(threaded=True)
 
-def touch(x, y):
-    client.control.touch(x, y, scrcpy.ACTION_DOWN);
-    client.control.touch(x, y, scrcpy.ACTION_UP);
 
 def adbAPI(command : str):
     return subprocess.run("source ../adbAPI.bash; " + command, shell=True, executable='/bin/bash')
 
-
 # Path to screenshot
 SCREEN_PATH = "/tmp/humdroid/capture.png"
 
-print(client.resolution)
+#print(client.resolution)
 #adbAPI("screenshot")
 #adbAPI("launchBattleCats")
 
