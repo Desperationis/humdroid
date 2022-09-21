@@ -62,7 +62,7 @@ class CVRequester:
 
 
 
-    def CompareID(self, photo, ID):
+    def CompareID(self, photo, ID, minConfidence=0.95):
         """
             Send a CompareID request message. ID can be calculated from the 
             full path of the template using self.GetIDHash(). Stalls until
@@ -72,22 +72,22 @@ class CVRequester:
         compareData = {
             "compareID" : {
                 "photo" : photo,
-                "minConfidence" : 0.95,
+                "minConfidence" : minConfidence,
                 "id" : ID
             }
         }
         compareJSON = json.dumps(compareData).encode("UTF-8")
         self.inputSock.send(bytearray(compareJSON) + b"$")
 
-        return self.outputSock.receive()
+        return json.loads(self.outputSock.receive())
 
 
-    def CompareGroup(self, photo, group : int):
+    def CompareGroup(self, photo, group : int, minConfidence=0.95):
 
         compareData = {
             "compareGroup" : {
                 "photo" : photo,
-                "minConfidence" : 0.95,
+                "minConfidence" : minConfidence,
                 "group" : group
             }
         }
@@ -95,6 +95,6 @@ class CVRequester:
         compareJSON = json.dumps(compareData).encode("UTF-8")
         self.inputSock.send(bytearray(compareJSON) + b"$")
 
-        return self.outputSock.receive()
+        return json.loads(self.outputSock.receive())
 
 
