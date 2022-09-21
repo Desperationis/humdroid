@@ -1,1 +1,1 @@
-from .ScrcpyWrapper import ScrcpyWrapper
+from humdroid.wrappers.ScrcpyWrapper import ScrcpyWrapper

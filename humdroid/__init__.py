@@ -1,2 +1,2 @@
-from IPC import *
-from wrappers import *
+from humdroid.IPC import *
+from humdroid.wrappers import *

@@ -1,7 +1,7 @@
-from IPC import IPCSocket
+from humdroid.IPC import IPCSocket
 import json
-from os import walk
-from os.path import join
+import os
+import os.path
 
 class CVRequester:
     def __init__(self):
@@ -10,37 +10,57 @@ class CVRequester:
 
     def GetIDHash(self, fullPath):
         """
-            Given the full path to an image, get the resulting ID for that
-            image based on a hash.
+            Given any string, return an ID based on the hash of that string.
         """
 
         return abs(hash(fullPath)) % (10 ** 8)
 
-    def LoadImages(self, path):
+    def LoadImages(self, path, group : int):
         """ 
-        Given a path, load all PNGs and JPG's in the root 
+        Given a path to a directory, load all PNGs and JPG's in the root
         directory to OpenCV.
+        """
+
+        if os.path.isdir(path):
+            for (dirpath, dirnames, filenames) in os.walk(path):
+                for file in filenames:
+                    if ".png" in file or ".jpg" in file or ".jpeg" in file:
+                        file = os.path.join(path, file)
+                        self.LoadImage(file, group)
+
+                break # Remove if you want recursive
+        else:
+            raise Exception(path + " is not a path to a folder.")
+
+    def LoadImage(self, path, group : int):
+        """
+        Loads any image as long as its is a JPG or PNG. `path` has to be the
+        absolute, full path to the image. ID is calculated off of absolute
+        path.
         """
 
         data = {
             "loadTemplate" : { }
         }
-                
-        for (dirpath, dirnames, filenames) in walk(path):
-            for file in filenames:
-                if ".png" in file or ".jpg" in file or ".jpeg" in file:
-                    fullPath = join(path, file)
-                    data["loadTemplate"]["path"] = fullPath
-                    data["loadTemplate"]["id"] = self.GetIDHash(fullPath)
-                    data["loadTemplate"]["group"] = 1
 
-                    jsonData = json.dumps(data).encode("UTF-8")
+        if os.path.isabs(path):
+            file = os.path.basename(path)
+            if ".png" in file or ".jpg" in file or ".jpeg" in file:
+                data["loadTemplate"]["path"] = path
+                data["loadTemplate"]["id"] = self.GetIDHash(path)
+                data["loadTemplate"]["group"] = group
 
-                    # "$" is delimeter for multiple messages should they arrive
-                    # so fast they buffer
-                    self.inputSock.send(bytearray(jsonData) + b"$")
+                jsonData = json.dumps(data).encode("UTF-8")
 
-            break # Remove if you want recursive
+                # "$" is delimeter for multiple messages should they arrive
+                # so fast they buffer
+                self.inputSock.send(bytearray(jsonData) + b"$")
+            else:
+                raise Exception(path + " is not an image.")
+        else:
+            raise Exception(path + " is not an absolute path.")
+
+
 
     def CompareID(self, photo, ID):
         """

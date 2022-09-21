@@ -11,8 +11,8 @@ from humdroid.wrappers import ScrcpyWrapper
 BACKGROUND = "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg"
 
 requester = CVRequester()
-requester.LoadImages("/home/adhoc/Downloads/pack1")
-print(requester.CompareGroup(BACKGROUND, 1))
+requester.LoadImages("/home/adhoc/Downloads/pack1", 2)
+print(requester.CompareGroup(BACKGROUND, 2))
 
 
 
