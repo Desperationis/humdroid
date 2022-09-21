@@ -20,23 +20,33 @@ for (dirpath, dirnames, filenames) in os.walk(path):
             self.LoadImage(file, group)
 """
 
-TITLE_GROUP = 0
-TITLE_SKIP = "/humdroid_images/titlescreen/skip.png"
-TITLE_PLAY = "/humdroid_images/titlescreen/play.png"
-TITLE_LEGEND = "/humdroid_images/titlescreen/legend.png"
-TITLE_OKLEGEND = "/humdroid_images/titlescreen/oklegend.png"
+title = {
+    "group" : 0,
+    "images" : {
+        "skip" : "/humdroid_images/titlescreen/skip.png",
+        "play" : "/humdroid_images/titlescreen/play.png",
+        "legend" : "/humdroid_images/titlescreen/legend.png",
+        "oklegend" : "/humdroid_images/titlescreen/oklegend.png",
+        "upgrade" : "/humdroid_images/titlescreen/upgrade.png"
+    }
+}
 
-requester.LoadImages(HOME + "/humdroid_images/titlescreen", TITLE_GROUP)
+# Use instead of LoadImages so that ID is reproducable
+for key in title["images"]:
+    requester.LoadImage(HOME + title["images"][key], title["group"])
+
 
 while True:
     screenshot = scrcpyClient.LastFrame()
     screenshot.save(SCREEN_PATH)
 
-    matches = requester.CompareGroup(SCREEN_PATH, TITLE_GROUP)["matches"]
-    print(matches)
+    matches = requester.CompareGroup(SCREEN_PATH, title["group"])["matches"]
     if len(matches) != 0:
         m = matches[0]
-        scrcpyClient.Touch(m["x"], m["y"])
+        if m["id"] == requester.GetIDHash(HOME + title["images"]["upgrade"]):
+            print("Finished")
+        else:
+            scrcpyClient.Touch(m["x"], m["y"])
 
 
 
