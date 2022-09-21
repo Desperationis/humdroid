@@ -95,28 +95,7 @@ public:
 			// Parse message through delimeter, $, if there's multiple
 			while(std::getline(msgStream, parsed, '$')) {
 				auto jsonMsg = json::parse(parsed);
-				if(LoadTemplateMsg::IsMsg(jsonMsg)) {
-					std::cout << "LoadTemplate received." << std::endl;
-					LoadTemplateMsg templateMsg(jsonMsg);
-					if(queue != nullptr)
-						queue->templateQueue.Push(templateMsg);
-
-					std::cout<<"Template: " <<std::endl;
-					std::cout<<"Path: " << templateMsg.GetPath() << std::endl;
-					std::cout<<"ID: " << templateMsg.GetID() << std::endl;
-					std::cout<<"Group: " << templateMsg.GetGroup() << std::endl;
-				}
-
-				else if (CompareSingleMsg::IsMsg(jsonMsg)) {
-					std::cout << "CompareSingle received." << std::endl;
-
-					CompareSingleMsg compareSingleMsg(jsonMsg);
-					
-					if(queue != nullptr)
-						queue->compareQueue.Push(compareSingleMsg);
-
-					std::string background = compareSingleMsg.GetPhoto();
-				}
+				queue->inputQueue.Push(IPCInputMsg(jsonMsg));
 			}
 		}
 	}

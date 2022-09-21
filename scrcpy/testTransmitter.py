@@ -29,9 +29,10 @@ for (dirpath, dirnames, filenames) in walk(TEMPLATE_DIR):
 
 for i in range(100):
     compareData = {
-        "compareSingle" : {
+        "compareID" : {
             "photo" : "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg",
-            "minConfidence" : 0.95
+            "minConfidence" : 0.95,
+            "id" : abs(hash("/home/adhoc/Downloads/pack1/1.jpg")) % (10 ** 8)
         }
     }
     compareJSON = json.dumps(compareData).encode("UTF-8")
@@ -39,6 +40,15 @@ for i in range(100):
 
     print("Received: %s" % outputSock.receive())
 
+    compareData = {
+        "compareGroup" : {
+            "photo" : "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg",
+            "minConfidence" : 0.95,
+            "group" : 1
+        }
+    }
+    compareJSON = json.dumps(compareData).encode("UTF-8")
+    inputSock.send(bytearray(compareJSON) + b"$")
 
 
 """

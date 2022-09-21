@@ -35,27 +35,49 @@ int main( int argc, char** argv )
 	TemplateMatchCPU t;
 
 	while (true ) {
-		// Add templates 
-		while(msgQueue->templateQueue.Size() > 0) {
-			auto msg = msgQueue->templateQueue.Pop();
-			t.addTemplate(msg.GetID(), msg.GetPath(), msg.GetGroup());
-		}
-	
-		// Match templates, if requested
-		while(msgQueue->compareQueue.Size() > 0) {
-			CompareSingleMsg msg = msgQueue->compareQueue.Pop();
-			t.setBackground(msg.GetPhoto());
-
-			MatchesMsg matchMsg;
-
-			std::vector<Match> matches = t.match(-1, -1);
-			for(Match match : matches) {
-				if(match.getConfidence() > msg.GetMinConfidence()) {
-					matchMsg.AddMatch(match);
-				}
+		// Parse through input messages
+		while(msgQueue->inputQueue.Size() > 0) {
+			json data = msgQueue->inputQueue.Pop().GetJSON();
+			
+			if(LoadTemplateMsg::IsMsg(data)) {
+				LoadTemplateMsg msg(data);
+				t.addTemplate(msg.GetID(), msg.GetPath(), msg.GetGroup());
+				std::cout << "LoadTemplate received." << std::endl;
+				std::cout<<"Template: " <<std::endl;
+				std::cout<<"Path: " << msg.GetPath() << std::endl;
+				std::cout<<"ID: " << msg.GetID() << std::endl;
+				std::cout<<"Group: " << msg.GetGroup() << std::endl;
 			}
 
-			msgQueue->outputQueue.Push(matchMsg);
+			else if(CompareIDMsg::IsMsg(data)) {
+				CompareIDMsg msg(data);
+				t.setBackground(msg.GetPhoto());
+
+				MatchesMsg matchMsg;
+				std::vector<Match> matches = t.match(msg.GetID(), -1);
+				for(Match match : matches) {
+					if(match.getConfidence() > msg.GetMinConfidence()) {
+						matchMsg.AddMatch(match);
+					}
+				}
+
+				msgQueue->outputQueue.Push(matchMsg);
+			}
+
+			else if(CompareGroupMsg::IsMsg(data)) {
+				CompareGroupMsg msg(data);
+				t.setBackground(msg.GetPhoto());
+
+				MatchesMsg matchMsg;
+				std::vector<Match> matches = t.match(-1, msg.GetGroup());
+				for(Match match : matches) {
+					if(match.getConfidence() > msg.GetMinConfidence()) {
+						matchMsg.AddMatch(match);
+					}
+				}
+
+				msgQueue->outputQueue.Push(matchMsg);
+			}
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
