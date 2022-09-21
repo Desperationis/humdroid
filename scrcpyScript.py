@@ -7,11 +7,20 @@ from PIL import Image
 from humdroid.IPC import CVRequester
 from humdroid.wrappers import ScrcpyWrapper
 
-
+HOME = os.path.expanduser("~")
 BACKGROUND = "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg"
 
 requester = CVRequester()
-requester.LoadImages("/home/adhoc/Downloads/pack1", 2)
+
+"""
+for (dirpath, dirnames, filenames) in os.walk(path):
+    for file in filenames:
+        if ".png" in file or ".jpg" in file or ".jpeg" in file:
+            file = os.path.join(path, file)
+            self.LoadImage(file, group)
+"""
+
+requester.LoadImages(HOME + "/humdroid_images", 2)
 print(requester.CompareGroup(BACKGROUND, 2))
 
 
