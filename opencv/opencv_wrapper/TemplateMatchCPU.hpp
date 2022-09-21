@@ -32,8 +32,8 @@ public:
 		delete background;
 	}
 
-	void addTemplate(int id, std::string file) override {
-		templates.push_back(new TemplateCPU(id, file));
+	void addTemplate(int id, std::string file, int group) override {
+		templates.push_back(new TemplateCPU(id, file, group));
 	}
 
 	void setBackground(std::string file) override {
@@ -44,9 +44,15 @@ public:
 	}
 
 
-	std::vector<Match> match() override {
+	std::vector<Match> match(int id, int group) override {
 		std::vector<Match> matches;
 		for(TemplateCPU* mat : templates) {
+			if(id != -1 && mat->getID() != id)	
+				break;
+
+			if(group != -1 && mat->getGroup() != group)
+				break;
+
 			matches.push_back(match(mat));
 		}
 

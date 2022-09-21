@@ -4,30 +4,28 @@ from os import listdir, walk
 from os.path import isfile, join
 import time
 
+outputSock = IPCSocket(6070)
+inputSock = IPCSocket(6069)
+
 data = {
-    "loadTemplates" : {
-        "templates" : []
-    }
+    "loadTemplate" : { }
 }
 
 TEMPLATE_DIR = "/home/adhoc/Downloads/pack1"
 for (dirpath, dirnames, filenames) in walk(TEMPLATE_DIR):
-    images = []
     for file in filenames:
         if ".png" in file or ".jpg" in file or ".jpeg" in file:
             fullPath = join(TEMPLATE_DIR, file)
-            images.append(fullPath)
+            data["loadTemplate"]["path"] = fullPath
+            data["loadTemplate"]["id"] = abs(hash(fullPath)) % (10 ** 8)
+            data["loadTemplate"]["group"] = 1
 
-    data["loadTemplates"]["templates"].extend(images)
+            jsonData = json.dumps(data).encode("UTF-8")
+            inputSock.send(bytearray(jsonData) + b"$")
+
     break # Remove if you want recursive
 
 
-jsonData = json.dumps(data).encode("UTF-8")
-
-
-outputSock = IPCSocket(6070)
-inputSock = IPCSocket(6069)
-inputSock.send(bytearray(jsonData) + b"$")
 
 for i in range(100):
     compareData = {

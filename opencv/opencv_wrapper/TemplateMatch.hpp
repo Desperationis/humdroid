@@ -20,7 +20,7 @@ public:
 	 * grouping multiple templates together.
 	 * @param file Path to the file.
 	*/
-	virtual void addTemplate(int id, std::string file) = 0;
+	virtual void addTemplate(int id, std::string file, int group) = 0;
 
 
 	/**
@@ -31,9 +31,18 @@ public:
 	virtual void setBackground(std::string file) = 0;
 
 	/**
-	 * Returns a list of template matches with an image.
+	 * Returns a list of template matches. 
+	 *
+	 * match(-1, -1) -> Match with all templates
+	 * match(234, -1) -> Templates w/ id == 234
+	 * match(10, 3) -> Templates w/ id == 10 && group == 3
+	 * match(-1, 0) -> All templates in group 0
+	 *
+	 * @id The specific ID of a template. -1 if the ID doesn't matter.
+	 * @group The group to check against. If combined with `id`, only returns
+	 * templates that fit both `id` and `group`. If -1, ignore.
 	*/ 
-	virtual std::vector<Match> match() = 0;
+	virtual std::vector<Match> match(int id, int group) = 0;
 };
 
 TemplateMatch::~TemplateMatch() {}

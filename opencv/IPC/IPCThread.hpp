@@ -92,19 +92,19 @@ public:
 			std::stringstream msgStream(msg);
 			std::string parsed;
 
+			// Parse message through delimeter, $, if there's multiple
 			while(std::getline(msgStream, parsed, '$')) {
 				auto jsonMsg = json::parse(parsed);
-				if(LoadTemplatesMsg::IsMsg(jsonMsg)) {
-					std::cout << "LoadTemplates received." << std::endl;
-					LoadTemplatesMsg templatesMsg(jsonMsg);
+				if(LoadTemplateMsg::IsMsg(jsonMsg)) {
+					std::cout << "LoadTemplate received." << std::endl;
+					LoadTemplateMsg templateMsg(jsonMsg);
 					if(queue != nullptr)
-						queue->templateQueue.Push(templatesMsg);
+						queue->templateQueue.Push(templateMsg);
 
-					std::cout<<"Templates: " <<std::endl;
-					auto templates = templatesMsg.GetTemplates();
-					for(int i = 0; i < templates.size(); i ++) {
-						std::cout << templates[i] << std::endl;
-					}
+					std::cout<<"Template: " <<std::endl;
+					std::cout<<"Path: " << templateMsg.GetPath() << std::endl;
+					std::cout<<"ID: " << templateMsg.GetID() << std::endl;
+					std::cout<<"Group: " << templateMsg.GetGroup() << std::endl;
 				}
 
 				else if (CompareSingleMsg::IsMsg(jsonMsg)) {

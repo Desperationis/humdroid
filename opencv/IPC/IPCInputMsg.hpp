@@ -18,15 +18,23 @@ public:
 	}
 };
 
-struct LoadTemplatesMsg : public IPCInputMsg {
+struct LoadTemplateMsg : public IPCInputMsg {
 	static bool IsMsg(json in) {
-		return in.contains("loadTemplates");
+		return in.contains("loadTemplate");
 	}
 
-	LoadTemplatesMsg(json in) : IPCInputMsg(in) {}
+	LoadTemplateMsg(json in) : IPCInputMsg(in) {}
 
-	std::vector<std::string> GetTemplates() {
-		return in["loadTemplates"]["templates"];
+	std::string GetPath() {
+		return in["loadTemplate"]["path"];
+	}
+
+	int GetID() {
+		return in["loadTemplate"]["id"];
+	}
+
+	int GetGroup() {
+		return in["loadTemplate"]["group"];
 	}
 };
 

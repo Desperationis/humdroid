@@ -23,10 +23,12 @@ using namespace cv::cuda;
 class TemplateGPU {
 private:
 	int id;
+	int group;
 	cuda::GpuMat* mat;
 public:
-	TemplateGPU(int id, std::string filename) {
+	TemplateGPU(int id, std::string filename, int group) {
 		this->id = id;
+		this->group = group;
 
 		Mat temp = imread(filename, IMREAD_GRAYSCALE);
 		mat = new cv::cuda::GpuMat();
@@ -39,6 +41,10 @@ public:
 
 	cuda::GpuMat* getMat() {
 		return mat;
+	}
+
+	int getGroup() {
+		return group;
 	}
 };
 

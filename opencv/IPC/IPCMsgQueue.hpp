@@ -8,7 +8,7 @@
 
 struct IPCMsgQueue {
 	MutexQueue<IPCOutputMsg> outputQueue;
-	MutexQueue<LoadTemplatesMsg> templateQueue;
+	MutexQueue<LoadTemplateMsg> templateQueue;
 	MutexQueue<CompareSingleMsg> compareQueue;
 };
 

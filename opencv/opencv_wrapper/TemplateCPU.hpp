@@ -16,10 +16,12 @@ using namespace cv;
 class TemplateCPU {
 private:
 	int id;
+	int group;
 	Mat* mat;
 public:
-	TemplateCPU(int id, std::string filename) {
+	TemplateCPU(int id, std::string filename, int group) {
 		this->id = id;
+		this->group = group;
 
 		mat = new Mat(imread(filename, IMREAD_GRAYSCALE));
 	}
@@ -30,6 +32,10 @@ public:
 
 	Mat* getMat() {
 		return mat;
+	}
+
+	int getGroup() {
+		return group;
 	}
 };
 

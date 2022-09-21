@@ -37,10 +37,8 @@ int main( int argc, char** argv )
 	while (true ) {
 		// Add templates 
 		while(msgQueue->templateQueue.Size() > 0) {
-			std::vector<std::string> templates = msgQueue->templateQueue.Pop().GetTemplates();
-			for(int i = 0; i < templates.size(); i ++) {
-				t.addTemplate(i, templates[i]);
-			}
+			auto msg = msgQueue->templateQueue.Pop();
+			t.addTemplate(msg.GetID(), msg.GetPath(), msg.GetGroup());
 		}
 	
 		// Match templates, if requested
@@ -50,7 +48,7 @@ int main( int argc, char** argv )
 
 			MatchesMsg matchMsg;
 
-			std::vector<Match> matches = t.match();
+			std::vector<Match> matches = t.match(-1, -1);
 			for(Match match : matches) {
 				if(match.getConfidence() > msg.GetMinConfidence()) {
 					matchMsg.AddMatch(match);
