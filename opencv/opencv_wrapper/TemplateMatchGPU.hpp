@@ -62,10 +62,10 @@ public:
 		std::vector<Match> matches;
 		for(TemplateGPU* mat : templates) {
 			if(id != -1 && mat->getID() != id)	
-				break;
+				continue;
 
 			if(group != -1 && mat->getGroup() != group)
-				break;
+				continue;
 
 			matches.push_back(match(mat));
 		}
