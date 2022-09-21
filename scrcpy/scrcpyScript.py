@@ -4,7 +4,19 @@ from adbutils import adb
 import subprocess
 import os
 from PIL import Image
+from IPC import CVRequester
 
+
+BACKGROUND = "/home/adhoc/Desktop/humdroid/opencv/executable/background.jpg"
+
+requester = CVRequester()
+requester.LoadImages("/home/adhoc/Downloads/pack1")
+print(requester.CompareGroup(BACKGROUND, 1))
+
+
+
+
+exit(0)
 
 # Connect to device
 adb.connect("127.0.0.1:5555")
