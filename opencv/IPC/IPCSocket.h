@@ -24,14 +24,14 @@ private:
 	int port;
 	std::string address;
 
-	const int MAXBYTES = 1024;
+	const int MAXBYTES = 32768;
 	
 public:
 	IPCSocket(int port = 5005, std::string address = "127.0.0.1") {
 		this->port = port;
 		this->address = address;
 
-		buffer = new char[MAXBYTES];
+		buffer = new char[MAXBYTES + 1];
 
 		// Create UDP socket
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);

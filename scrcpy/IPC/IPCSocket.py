@@ -13,7 +13,7 @@ class IPCSocket:
             self.sock.connect((self.ip, self.port))
 
     def receive(self):
-        data,addr = self.sock.recvfrom(1024)
+        data,addr = self.sock.recvfrom(32768)
         return data
 
     def send(self, data):
