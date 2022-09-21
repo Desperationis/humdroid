@@ -24,6 +24,7 @@ launchBattleCats () {
 	# Open battle cats; Ignore output
 
 	adb shell monkey -p $battlecats 1 > /dev/null 2>&1
+	return $?
 }
 
 tap() {
@@ -82,6 +83,7 @@ home() {
 	# Goes to the home / menu screen of the phone.
 
 	adb shell input keyevent 3
+	return $?
 }
 
 battleCatsRunning() {
@@ -100,14 +102,23 @@ killBattleCats() {
 	# "battlecats".
 
 	adb shell am force-stop $battlecats
+	return $?
 }
 
 restartBattleCats () {
 	# Kills, then launches battlecats.
 
-	killBattleCats
+	if ! killBattleCats
+	then
+		return $?
+	fi
+
 	sleep 2s
-	launchBattleCats
+
+	if ! launchBattleCats
+	then
+		return $?
+	fi
 }
 
 listAllApps () {
@@ -115,81 +126,48 @@ listAllApps () {
 	# specific name of battlecats.
 
 	adb shell cmd package list packages
+	return $?
 }
 
 screenshot() {
-	# Takes a screenshot of the device in PNG format. Image goes to the current
-	# directory as "screen.png".
-	
-	bash screenshot.bash
-}
+	# Screenshots a connected Android device as fast as possible using regular
+	# shell commands and ffmpeg. Screenshot is saved as "capture.png" in 
+	# /tmp/humdroid
 
-clickFoundImage() {
-	# Searches for an image on the device's screen and stalls until it finds it.
-	#
-	# Usage: "clickFoundImage NAME TIMEOUT [ ACC ]", where NAME is the name of
-	# the file in relation to imgdec/, TIMEOUT is the amount of time in seconds
-	# that the function will exit if it doesn't match anything, and ACC is an
-	# optional parameter detailing the minimum accuracy needed to click on the
-	# image. This is set to 0.8 by default. If nothing is matched before
-	# TIMEOUT ends this returns an exit code of 1
+	# There may be a theoretical faster way of doing this that involves hosting a
+	# local webserver on the device. scrcpy (https://github.com/Genymobile/scrcpy)
+	# does this to get super-fast video streaming. The same can potentially be
+	# applied to screenshotting as well. scrcpy's blog
+	# (https://blog.rom1v.com/2018/03/introducing-scrcpy/) may provide some hints
+	# as to how to implement such a thing. PyScrcpy is a viable option for custom 
+	# behavior.
 
-	SECONDS=0
-	imageClicked=1
-	until (( SECONDS >= $2 )) || (( imageClicked == 0 ))
-	do
-		screenshot
-		clickImageCache $1 $3
-		imageClicked=$?
-	done
-	
-	if (( SECONDS >= $2 ))
+	#adb shell wm size
+	TMP_DIR=/tmp/humdroid
+
+	if ! [[ -d $TMP_DIR ]]
 	then
-		return 1
-	fi
-}
-
-imageFound() {
-	# Return exit code 0 if image is found on screen.png, 1 otherwise.
-	# Coordinates of the center of the image is put into a variable called
-	# "coords".
-	# 
-	# Usage: "imageFound NAME [ ACC ]", where NAME is the name of the file in
-	# relation to imgdec/ and ACC is an optional parameter detailing the
-	# minimum accuracy needed to click on the image. This is set to 0.8 by
-	# default.
-
-	templateName=$1	
-	accuracy=.80
-
-	if [[ $# -ge 2 ]]
-	then
-		accuracy=$2
+		mkdir $TMP_DIR
 	fi
 
-	coords=$(./getcoords ./imgdec/$templateName screen.png $accuracy)
-	coordsFound=$?
-
-	if [[ $coordsFound -ne 0 ]]
+	if ! adb shell screencap > $TMP_DIR/out.raw
 	then
-		return 1
-	fi
-}
-
-clickImageCache() {
-	# Searches for an image in screen.png in one go.
-	#
-	# Usage: "clickImageCache NAME [ ACC ]", where NAME is the name of the file
-	# in relation to imgdec/ and ACC is an optional parameter detailing the
-	# minimum accuracy needed to click on the image. This is set to 0.8 by
-	# default.
-
-	if ! imageFound $1 $2
-	then
-		return 1
+		exit 1
 	fi
 
-	tap $coords
+	if [[ -e $TMP_DIR/capture.png ]] 
+	then
+		rm $TMP_DIR/capture.png
+	fi
+
+	if ! ffmpeg -hide_banner -loglevel error -f rawvideo -pix_fmt bgr32 -s $(adb shell wm size | rev | cut -d " " -f 1 | rev) -i $TMP_DIR/out.raw -vframes 1 $TMP_DIR/capture.png  
+	then
+		exit 1
+	fi
+
+	#eog $TMP_DIR/capture.png
+
+	return $?
 }
 
 changeBrightness() {
@@ -201,4 +179,5 @@ changeBrightness() {
 	# or below this limit has no lasting effects on the device.
 
 	adb shell settings put system screen_brightness $1
+	return $?
 }
