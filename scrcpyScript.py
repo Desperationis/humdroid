@@ -86,11 +86,15 @@ LoadDataImages(wednesdayStage)
 LoadDataImages(cats)
 LoadDataImages(battle)
 
+for i in title["images"]:
+    print(i + " " + title["images"][i] + " " + str(requester.GetIDHash(HOME + title["images"][i])))
+
 
 # Go to main page
 while True:
     screenshot = scrcpyClient.LastFrame()
     screenshot.save(SCREEN_PATH)
+    
 
     matches = requester.CompareGroup(SCREEN_PATH, title["group"])["matches"]
     if len(matches) != 0:
@@ -99,7 +103,6 @@ while True:
             break
         else:
             scrcpyClient.Touch(m["x"], m["y"])
-
 
 
 
@@ -133,7 +136,7 @@ def GoToStage():
         screenshot.save(SCREEN_PATH)
 
         touched = False
-        matches = requester.CompareID(SCREEN_PATH, ID)["matches"]
+        matches = requester.CompareID(SCREEN_PATH, ID, 0.8)["matches"]
         for m in matches:
             if m["id"] == ID:
                 scrcpyClient.Touch(m["x"], m["y"], 0.5)
@@ -142,12 +145,13 @@ def GoToStage():
         if touched:
             break
 
+
         screenSize = scrcpyClient.GetResolution()
         swipeX = screenSize[0] / 2
         swipeYtop = screenSize[1] / 6
         swipeYbottom = (screenSize[1] / 6) * 4
         scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop)
-        time.sleep(0.5)
+        time.sleep(1)
 
 
 def Equip():

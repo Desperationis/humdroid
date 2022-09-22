@@ -21,10 +21,11 @@ class ScrcpyWrapper:
     def _FrameReady(self, frame):
         if frame is not None:
             self.frameReady = True
-            self.client.remove_listener(scrcpy.EVENT_FRAME, self._FrameReady)
+            #self.client.remove_listener(scrcpy.EVENT_FRAME, self._FrameReady)
 
     def LastFrame(self):
         # TODO: Add options for stream's width to make this even faster
+        self.frameReady = False
         while not self.frameReady:
             time.sleep(0.01)
 
