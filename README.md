@@ -73,6 +73,9 @@ Tries to see if any of the templates in a group are somewhere in the image provi
 ## Server API - Input Port `6070`:
 #### Matches
 This message is sent out every time a compare message was sent. It is `guaranteed` to arrive in the order the compare messages were sent in. `id` is the ID matched, `x` is the x-coordinate from the topleft of the `photo` compared, `y` is the y-coordinate from the topleft of the `photo` compared (positive goes downwards), `confidence` is the confidence of the algorithm of it being in that specific spot, and `origin` describes where `x` and `y` are compared to the template. By default, `origin` will always be `"center"`, though it could be `"topleft"` as well.
+
+It is important to mention that only **one** match will be returned. If the template is in multiple spots of the image, it is up to OpenCV to decide what specific match gets returned. 
+
 ```json
 {
     "matches" : [
@@ -82,9 +85,7 @@ This message is sent out every time a compare message was sent. It is `guarantee
             "y" : 640,
             "confidence" : 0.966553
             "origin" : "center"
-        },
-        
-        ...
+        }
     ]
 }
 ```
