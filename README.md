@@ -81,7 +81,7 @@ This message is sent out every time a compare message was sent. It is `guarantee
             "x" : 370,
             "y" : 640,
             "confidence" : 0.966553
-            "origin" : center
+            "origin" : "center"
         },
         
         ...
