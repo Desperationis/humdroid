@@ -49,14 +49,8 @@ wednesdayStage = {
         "start" : "/humdroid_images/eventselect/start.png",
         "wednesdaystage" : "/humdroid_images/eventselect/wednesdaystage.png",
         "equip" : "/humdroid_images/eventselect/equip.png",
-        "copy" : "/humdroid_images/eventselect/copy.png",
-        "copyOK" : "/humdroid_images/eventselect/copyOK.png",
-        "slot" : "/humdroid_images/eventselect/slot.png",
-        "replace" : "/humdroid_images/eventselect/replace.png",
-        "replaceConfirm" : "/humdroid_images/eventselect/replaceConfirm.png",
-        "unitsBack" : "/humdroid_images/eventselect/unitsBack.png",
+        "formation" : "/humdroid_images/eventselect/formation.png",
         "attack" : "/humdroid_images/eventselect/attack.png",
-
     }
 }
 
@@ -151,17 +145,12 @@ def GoToStage():
         swipeYtop = screenSize[1] / 6
         swipeYbottom = (screenSize[1] / 6) * 4
         scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop, 5, 0.02)
-        time.sleep(3)
+        time.sleep(1)
 
 
 def Equip():
-    waitUntilClicked(GetID(wednesdayStage, "equip"))
-    waitUntilClicked(GetID(wednesdayStage, "copy"))
-    waitUntilClicked(GetID(wednesdayStage, "copyOK"))
-    waitUntilClicked(GetID(wednesdayStage, "slot"))
-    waitUntilClicked(GetID(wednesdayStage, "replace"))
-    waitUntilClicked(GetID(wednesdayStage, "replaceConfirm"))
-    waitUntilClicked(GetID(wednesdayStage, "unitsBack"))
+    waitUntilClicked(GetID(wednesdayStage, "equip"), 2)
+    waitUntilClicked(GetID(wednesdayStage, "formation"))
 
 def Battle():
     waitUntilClicked(GetID(wednesdayStage, "attack"))
@@ -174,7 +163,7 @@ def Battle():
             break
 
     clickCount = 0
-    while clickCount < 100:
+    while clickCount < 180:
         for m in matches:
             if m["id"] == GetID(cats, "maniclion"):
                 scrcpyClient.Touch(m["x"], m["y"])
