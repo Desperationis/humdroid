@@ -7,7 +7,7 @@ from humdroid.wrappers import ScrcpyWrapper
 
 SCREEN_PATH = "/tmp/humdroid/capture.png"
 HOME = os.path.expanduser("~")
-scrcpyClient = ScrcpyWrapper()
+scrcpyClient = ScrcpyWrapper(500, 2000000)
 
 s = time.time()
 screenshot = scrcpyClient.LastFrame()

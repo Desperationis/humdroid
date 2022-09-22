@@ -18,7 +18,7 @@ def adbAPI(command : str):
 adbAPI("restartBattleCats")
 time.sleep(2)
 
-scrcpyClient = ScrcpyWrapper()
+scrcpyClient = ScrcpyWrapper(500, 2000000)
 
 
 
@@ -147,7 +147,7 @@ def GoToStage():
         swipeYtop = screenSize[1] / 6
         swipeYbottom = (screenSize[1] / 6) * 4
         scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop)
-        time.sleep(0.5)
+        time.sleep(3)
 
 
 def Equip():

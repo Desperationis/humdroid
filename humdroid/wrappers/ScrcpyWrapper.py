@@ -4,9 +4,9 @@ import scrcpy
 import time
 
 class ScrcpyWrapper:
-    def __init__(self):
+    def __init__(self, max_width : int = 0, bitrate : int = 8000000):
         adb.connect("127.0.0.1:5555")
-        self.client = scrcpy.Client(device=adb.device_list()[0].serial)
+        self.client = scrcpy.Client(device=adb.device_list()[0].serial, max_width=max_width, bitrate=bitrate)
         self.client.start(threaded=True)
 
         self.frameReady = False
