@@ -15,7 +15,7 @@ def adbAPI(command : str):
 
 # Launch Battlecats first to force screen orientation change so the scrcpy
 # stream doesn't freak out
-adbAPI("launchBattleCats")
+adbAPI("restartBattleCats")
 time.sleep(2)
 
 scrcpyClient = ScrcpyWrapper()
@@ -58,16 +58,33 @@ wednesdayStage = {
         "attack" : "/humdroid_images/eventselect/attack.png",
 
     }
-
-
 }
 
-# Use instead of LoadImages so that ID is reproducable
-for key in title["images"]:
-    requester.LoadImage(HOME + title["images"][key], title["group"])
+cats = {
+    "group" : 2,
+    "images" : {
+        "maniclion" : "/humdroid_images/cats/maniclion.png"
+    }
+}
 
-for key in wednesdayStage["images"]:
-    requester.LoadImage(HOME + wednesdayStage["images"][key], wednesdayStage["group"])
+battle = { 
+    "group" : 3,
+    "images" : {
+        "dropreward" : "/humdroid_images/battle/dropreward.png",
+        "battleok" : "/humdroid_images/battle/battleok.png"
+    }
+}
+
+
+# Use instead of LoadImages so that ID is reproducable
+def LoadDataImages(data):
+    for key in data["images"]:
+        requester.LoadImage(HOME + data["images"][key], data["group"])
+
+LoadDataImages(title)
+LoadDataImages(wednesdayStage)
+LoadDataImages(cats)
+LoadDataImages(battle)
 
 
 # Go to main page
@@ -87,7 +104,7 @@ while True:
 
 
 
-def waitUntilClicked(ID : int):
+def waitUntilClicked(ID : int, duration=-1.0):
     while True:
         screenshot = scrcpyClient.LastFrame()
         screenshot.save(SCREEN_PATH)
@@ -95,7 +112,7 @@ def waitUntilClicked(ID : int):
         matches = requester.CompareID(SCREEN_PATH, ID)["matches"]
         for m in matches:
             if m["id"] == ID:
-                scrcpyClient.Touch(m["x"], m["y"])
+                scrcpyClient.Touch(m["x"], m["y"], duration)
                 return
 
 
@@ -104,63 +121,91 @@ def GetID(data, imageKey):
       
 
 
+def GoToStage():
+    print("Trying to click start...")
+    waitUntilClicked(GetID(wednesdayStage, "start"), 0.2)
+    time.sleep(3) # Transition
+    print("Clicked start")
+
+    while True:
+        ID = GetID(wednesdayStage, "wednesdaystage")
+        screenshot = scrcpyClient.LastFrame()
+        screenshot.save(SCREEN_PATH)
+
+        touched = False
+        matches = requester.CompareID(SCREEN_PATH, ID)["matches"]
+        for m in matches:
+            if m["id"] == ID:
+                scrcpyClient.Touch(m["x"], m["y"], 0.5)
+                touched = True
+
+        if touched:
+            break
+
+        screenSize = scrcpyClient.GetResolution()
+        swipeX = screenSize[0] / 2
+        swipeYtop = screenSize[1] / 6
+        swipeYbottom = (screenSize[1] / 6) * 4
+        scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop)
+        time.sleep(0.5)
 
 
-waitUntilClicked(GetID(wednesdayStage, "start"))
+def Equip():
+    waitUntilClicked(GetID(wednesdayStage, "equip"))
+    waitUntilClicked(GetID(wednesdayStage, "copy"))
+    waitUntilClicked(GetID(wednesdayStage, "copyOK"))
+    waitUntilClicked(GetID(wednesdayStage, "slot"))
+    waitUntilClicked(GetID(wednesdayStage, "replace"))
+    waitUntilClicked(GetID(wednesdayStage, "replaceConfirm"))
+    waitUntilClicked(GetID(wednesdayStage, "unitsBack"))
 
-while True:
-    ID = GetID(wednesdayStage, "wednesdaystage")
-    screenshot = scrcpyClient.LastFrame()
-    screenshot.save(SCREEN_PATH)
+def Battle():
+    waitUntilClicked(GetID(wednesdayStage, "attack"))
+    matches = []
+    while True:
+        screenshot = scrcpyClient.LastFrame()
+        screenshot.save(SCREEN_PATH)
+        matches = requester.CompareGroup(SCREEN_PATH, cats["group"])["matches"]
+        if len(matches) > 0:
+            break
 
-    touched = False
-    matches = requester.CompareID(SCREEN_PATH, ID)["matches"]
-    for m in matches:
-        if m["id"] == ID:
-            scrcpyClient.Touch(m["x"], m["y"], 0.5)
-            touched = True
+    clickCount = 0
+    while clickCount < 100:
+        for m in matches:
+            if m["id"] == GetID(cats, "maniclion"):
+                scrcpyClient.Touch(m["x"], m["y"])
+                clickCount += 1
 
-    if touched:
-        break
+        time.sleep(0.2)
 
-    screenSize = scrcpyClient.GetResolution()
-    swipeX = screenSize[0] / 2
-    swipeYtop = screenSize[1] / 6
-    swipeYbottom = (screenSize[1] / 6) * 4
-    scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop)
-    time.sleep(0.5)
+    done = False
+    while not done:
+        screenshot = scrcpyClient.LastFrame()
+        screenshot.save(SCREEN_PATH)
+        matches = requester.CompareGroup(SCREEN_PATH, battle["group"])["matches"]
 
+        for m in matches:
+            scrcpyClient.Touch(m["x"], m["y"])
+            if m["id"] == GetID(battle, "battleok"):
+                done = True
 
+    time.sleep(2) # Wait for transition
 
-waitUntilClicked(GetID(wednesdayStage, "equip"))
-waitUntilClicked(GetID(wednesdayStage, "copy"))
-waitUntilClicked(GetID(wednesdayStage, "copyOK"))
-waitUntilClicked(GetID(wednesdayStage, "slot"))
-waitUntilClicked(GetID(wednesdayStage, "replace"))
-waitUntilClicked(GetID(wednesdayStage, "replaceConfirm"))
-waitUntilClicked(GetID(wednesdayStage, "unitsBack"))
-
-
-
-
+for i in range(4):
+    GoToStage()
+    if i == 0:
+        Equip()
+    Battle()
+    print("looping again")
 
 
 
-
-
+scrcpyClient.Close()
 
 
 exit(0)
 
 # Connect to device
-
-
-# Path to screenshot
-SCREEN_PATH = "/tmp/humdroid/capture.png"
-
-#print(client.resolution)
-#adbAPI("screenshot")
-
 
 """
 Screenshots via scrcpy; 2x faster, but colors are off
@@ -174,4 +219,3 @@ print("Seconds: " + str(f - s))
 """
 
 
-client.stop()
