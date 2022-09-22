@@ -149,8 +149,8 @@ def GoToStage():
         screenSize = scrcpyClient.GetResolution()
         swipeX = screenSize[0] / 2
         swipeYtop = screenSize[1] / 6
-        swipeYbottom = (screenSize[1] / 6) * 2
-        scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop)
+        swipeYbottom = (screenSize[1] / 6) * 4
+        scrcpyClient.Swipe(swipeX, swipeYbottom, swipeX, swipeYtop, 5, 0.02)
         time.sleep(3)
 
 
