@@ -12,8 +12,10 @@ class ScrcpyWrapper:
         self.frameReady = False
         self.client.add_listener(scrcpy.EVENT_FRAME, self._FrameReady)
 
-    def Touch(self, x, y):
+    def Touch(self, x, y, duration=-1.0):
         self.client.control.touch(x, y, scrcpy.ACTION_DOWN);
+        if duration > 0:
+            time.sleep(duration)
         self.client.control.touch(x, y, scrcpy.ACTION_UP);
 
     def _FrameReady(self, frame):
@@ -31,3 +33,9 @@ class ScrcpyWrapper:
 
     def Close(self):
         self.client.stop()
+
+    def Swipe(self, start_x: int, start_y: int, end_x: int, end_y: int, move_step_length: int = 5, move_steps_delay: float = 0.005):
+        self.client.control.swipe(start_x, start_y, end_x, end_y, move_step_length, move_steps_delay)
+
+    def GetResolution(self) -> (int, int):
+        return self.client.resolution
