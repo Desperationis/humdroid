@@ -5,6 +5,9 @@ import subprocess
 import os
 from humdroid.IPC import CVRequester
 from humdroid.wrappers import ScrcpyWrapper
+import signal
+import sys
+
 
 SCREEN_DIR = "/tmp/humdroid/"
 SCREEN_PATH = SCREEN_DIR + "/capture.png"
@@ -15,6 +18,11 @@ if not os.path.exists(SCREEN_DIR):
 
 
 requester = CVRequester()
+
+def signal_handler(signal, frame):
+    requester.Close()
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
 
 
 def adbAPI(command : str):
