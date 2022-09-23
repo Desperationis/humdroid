@@ -97,4 +97,8 @@ class CVRequester:
 
         return json.loads(self.outputSock.receive())
 
+    def Close(self):
+        self.inputSock.close()
+        self.outputSock.close()
+
 

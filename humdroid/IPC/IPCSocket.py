@@ -19,3 +19,6 @@ class IPCSocket:
     def send(self, data):
         self.sock.sendall(data)
 
+    def close(self):
+        self.sock.close()
+

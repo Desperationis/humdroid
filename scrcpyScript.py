@@ -200,21 +200,4 @@ for i in range(15):
 
 
 scrcpyClient.Close()
-
-
-exit(0)
-
-# Connect to device
-
-"""
-Screenshots via scrcpy; 2x faster, but colors are off
-
-time.sleep(10)
-s = time.time()
-screenshot = Image.fromarray(client.last_frame)
-screenshot.save(SCREEN_PATH)
-f = time.time()
-print("Seconds: " + str(f - s))
-"""
-
-
+requester.Close()
