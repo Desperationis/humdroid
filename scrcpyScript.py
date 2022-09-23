@@ -6,9 +6,16 @@ import os
 from humdroid.IPC import CVRequester
 from humdroid.wrappers import ScrcpyWrapper
 
-SCREEN_PATH = "/tmp/humdroid/capture.png"
+SCREEN_DIR = "/tmp/humdroid/"
+SCREEN_PATH = SCREEN_DIR + "/capture.png"
 HOME = os.path.expanduser("~")
+
+if not os.path.exists(SCREEN_DIR):
+    os.makedirs(SCREEN_DIR)
+
+
 requester = CVRequester()
+
 
 def adbAPI(command : str):
     return subprocess.run("source adbAPI.bash; " + command, shell=True, executable='/bin/bash')
