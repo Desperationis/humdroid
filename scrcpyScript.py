@@ -184,10 +184,9 @@ def Battle():
 
     time.sleep(2) # Wait for transition
 
-for i in range(4):
+for i in range(15):
     GoToStage()
-    if i == 0:
-        Equip()
+    Equip()
     Battle()
     print("looping again")
 
