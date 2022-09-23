@@ -1,4 +1,4 @@
-from humdroid.IPC import IPCSocket
+from .IPCSocket import IPCSocket
 import json
 import os
 import os.path
