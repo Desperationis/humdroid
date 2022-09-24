@@ -13,7 +13,7 @@ class CVServer:
         if GPU and self._IsCommand("humdroid_gpu"):
             command = "humdroid_gpu"
 
-        if not self._IsCommand("humdroid_cpu"):
+        elif not self._IsCommand("humdroid_cpu"):
             raise Exception("humdroid_cpu is not installed or on PATH.")
 
         self.server = subprocess.Popen([command,], stdout=subprocess.PIPE, shell=False)
