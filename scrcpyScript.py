@@ -4,6 +4,7 @@ from adbutils import adb
 import subprocess
 import os
 from humdroid.IPC import CVRequester
+from humdroid.IPC import CVServer
 from humdroid.wrappers import ScrcpyWrapper
 import signal
 import sys
@@ -16,11 +17,15 @@ HOME = os.path.expanduser("~")
 if not os.path.exists(SCREEN_DIR):
     os.makedirs(SCREEN_DIR)
 
+server = CVServer()
+server.Start()
+time.sleep(2)
 
 requester = CVRequester()
 
 def signal_handler(signal, frame):
     requester.Close()
+    server.Close()
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 

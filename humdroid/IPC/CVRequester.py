@@ -7,8 +7,6 @@ import time
 
 class CVRequester:
     def __init__(self):
-        self.server = subprocess.Popen(["humdroid_cpu"], stdout=subprocess.PIPE, shell=False)
-        time.sleep(3)
         self.outputSock = IPCSocket(6070)
         self.inputSock = IPCSocket(6069)
 
@@ -102,7 +100,6 @@ class CVRequester:
         return json.loads(self.outputSock.receive())
 
     def Close(self):
-        self.server.kill()
         self.inputSock.close()
         self.outputSock.close()
 
