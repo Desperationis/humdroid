@@ -19,6 +19,10 @@ class CVServer:
         self.server = subprocess.Popen([command,], stdout=subprocess.PIPE, shell=False)
 
     def Close(self):
+        """
+            To properly close the connection without locking up the socket for
+            a few minutes, close all connected sockets before calling this.
+        """
         self.server.kill()
 
     def _IsCommand(self, command) -> bool:
