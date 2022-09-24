@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humdroid"
+version = "0.1.0"
+authors = [
+	{ name = "Diego Contreras", email = "smarttdiego@gmail.com" }
+]
+description = "Programmatically control Android like a Human"
+readme="README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: Apache Software License",
+	"Operating System :: POSIX :: Linux"
+	]
+dependencies = [
+	"pillow",
+	"adbutils",
+	"scrcpy-client"
+	]
+
+[tool.setuptools.packages.find]
+include = ["humdroid"]
+
+
+
+[project.urls]
+"Homepage" = "https://github.com/Desperationis/humdroid"
+"Bug Tracker" = "https://github.com/Desperationis/humdroid/issues"

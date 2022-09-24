@@ -8,3 +8,5 @@ executable/
 compile_commands.json
 .cache/
 __pycache__/
+dist/
+humdroid.egg-info/
