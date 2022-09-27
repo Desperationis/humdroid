@@ -1,8 +1,10 @@
 # humdroid
 Programmatically control Android like a Human using computer vision. 
 
+This project was meant to automate certain tasks in games, such as [Battlecats](https://github.com/Desperationis/humdroid-battlecats), as easily as possible. By using images to scan and detect UI, writing scripts becomes much easier as only images needs to be added, not hardcoded positions. 
+
 Uses a three-step process:
-* **[py-scrcpy-client](https://github.com/leng-yue/py-scrcpy-client)** to very quickly capture the screen of the device.
+* **[py-scrcpy-client](https://github.com/leng-yue/py-scrcpy-client)** to very quickly capture the screen of the device. Has the option for image compression of the screen to reduce the search area. 
    * **adb + ffmpeg** can also be used and is an option in `adbAPI.bash`. It is much faster than the usual `adb shell screencap` as PNG conversion is done at your computer's processor, not the device's.
 * **OpenCV (CUDA + OpenGL optional)** to find specific items based on template matching.
 * **[py-scrcpy-client](https://github.com/leng-yue/py-scrcpy-client)** to very quickly click and swipe the screen.
