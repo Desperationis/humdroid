@@ -21,14 +21,18 @@ Therefore:
 * `humdroid` - Python library for interacting with **[scrcpy](https://github.com/Genymobile/scrcpy)** via **[py-scrcpy-client](https://github.com/leng-yue/py-scrcpy-client)** and the `opencv` server.
 
 ## Compiling / Running
-Install the following:
+To run this project, you'll need to compile the C++ server first. The dependencies for this are:
 * OpenCV: `sudo apt install libopencv-dev`
-  * CUDA and OpenCV are optional
+  * CUDA compatibility must be compiled into OpenCV in order to use it. 
 * `sudo apt install adb`
 * `pip3 install scrcpy-client adbutils`
    * `sudo apt install ffmmpeg` if using alternative method for screenshots
 
-After that, run `git submodule update --init`. In `opencv`, run `bash compile.bash` to compile the server. Comment out anything in `CMakeLists.txt` with `GPU` if not compiling with CUDA and OpenGL.
+After that, run `git submodule update --init`.
+
+In `opencv`, run `bash compile.bash` to compile the server, `humdroid_cpu`. If you have CUDA installed and your version of OpenCV supports it, then `humdroid_gpu` will be built. 
+
+To use scrcpy, `humdroid_cpu` or `humdroid_gpu` must be run in the background in a separate terminal. If you want to use the included `CVServer` to start the server, either server has to be in PATH. This can be done easily by running `install.bash` in `opencv`. 
 
 
 ## Server API - Input Port `6069`:
